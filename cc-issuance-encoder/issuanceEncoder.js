@@ -8,9 +8,9 @@ var OP_CODES = [
   new Buffer([0x06])  // No meta data (anyone can add rules and/or metadata  in the future)
 ]
 
-var sffc = require('sffc-encoder')
+var sffc = require('../sffc-encoder')
 var issueFlagsCodex = require('./issueFlagsEncoder.js')
-var paymentCodex = require('cc-payment-encoder')
+var paymentCodex = require('../cc-payment-encoder')
 
 var consumer = function (buff) {
   var curr = 0

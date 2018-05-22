@@ -18,8 +18,8 @@ var BURN_OP_CODES = [
   new Buffer([0x25])  // No metadata or rules (no SHA1 or SHA2)
 ]
 
-var transferPaymentEncoder = require('cc-payment-encoder')
-var burnPaymentEncoder = require('cc-burn-payment-encoder')
+var transferPaymentEncoder = require('../cc-payment-encoder')
+var burnPaymentEncoder = require('../cc-burn-payment-encoder')
 
 var consumer = function (buff) {
   var curr = 0

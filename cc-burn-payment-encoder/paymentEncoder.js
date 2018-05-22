@@ -1,4 +1,4 @@
-var basePaymentEncoder = require('cc-payment-encoder')
+var basePaymentEncoder = require('../cc-payment-encoder')
 var clone = require('clone')
 
 var BURN_OUTPUT = 0x1f

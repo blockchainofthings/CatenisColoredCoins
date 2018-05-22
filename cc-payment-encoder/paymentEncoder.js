@@ -2,7 +2,7 @@ var flagMask = 0xe0
 var skipFlag = 0x80
 var rangeFlag = 0x40
 var percentFlag = 0x20
-var sffc = require('sffc-encoder')
+var sffc = require('../sffc-encoder')
 
 var padLeadingZeros = function (hex, byteSize) {
   return (hex.length === byteSize * 2) && hex || padLeadingZeros('0' + hex, byteSize)
