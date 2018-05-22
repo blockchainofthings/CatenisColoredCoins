@@ -2,6 +2,7 @@
   "name": "catenis-colored-coins",
   "description": "Implementation of the Catenis Colored Coins protocol, which is based on the (original) Colored Coins protocol from coloredcoins.org",
   "version": "0.0.1",
+  "private": true,
   "author": "Cláudio Sá de Castro",
   "dependencies": {
     "clone": "^2.0.0",
