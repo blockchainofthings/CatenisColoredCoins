@@ -1,0 +1,12 @@
+{
+  "name": "catenis-colored-coins",
+  "description": "Implementation of the Catenis Colored Coins protocol, which is based on the (original) Colored Coins protocol from coloredcoins.org",
+  "version": "0.0.1",
+  "author": "Cláudio Sá de Castro",
+  "dependencies": {
+    "clone": "^2.0.0",
+    "debug": "^2.2.0",
+    "lodash": "^4.6.1"
+  },
+  "repository": "git@bitbucket.org:blockchainofthings/cateniscoloredcoins.git"
+}

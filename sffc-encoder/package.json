@@ -1,0 +1,28 @@
+{
+  "name": "sffc-encoder",
+  "version": "0.1.12",
+  "description": "Encode/decode numbers to and from SFFC encoding format",
+  "main": "sffcEncoder.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha",
+    "coverage": "istanbul cover _mocha -- -R spec",
+    "coveralls": "cat ./coverage/lcov.info | coveralls"
+  },
+  "author": {
+    "name": "thehobbit85",
+    "email": "thehobbit85@gmail.com"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "integer",
+    "sffc",
+    "encoder"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Colored-Coins/SFFC.git"
+  }
+}
