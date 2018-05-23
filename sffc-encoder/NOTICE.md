@@ -1,13 +1,13 @@
 # Notice of reuse
 
-This directory contains source code that has been originally created by a third party and has been incorporated into
-this Blockchain of Things' project. Please notice that the code may have been changed to server the specific needs of
-the current project.
+This directory contains source code that has been originally created by a third party, and has been incorporated into
+this Blockchain of Things' project. Please notice that the code may have been changed to serve the specific needs of
+the project.
 
-The current source code has been spawn from commit `17b4e78` of this public git [repository](https://github.com/Colored-Coins/SFFC.git)
-where the original source code is maintained.
+The baseline of the source code in this directory has been spawn from commit `17b4e78` of this public git [repository](https://github.com/Colored-Coins/SFFC.git)
+where the original third-party source code is maintained.
 
-The following is the integral contents of the source code's original README file.
+The following is the integral contents of the third-party source code's original README file.
 
 # sffc-encoder
 [![Build Status](https://travis-ci.org/Colored-Coins/SFFC.svg?branch=master)](https://travis-ci.org/Colored-Coins/SFFC) [![Coverage Status](https://coveralls.io/repos/Colored-Coins/SFFC/badge.svg?branch=master)](https://coveralls.io/r/Colored-Coins/SFFC?branch=master) [![npm version](https://badge.fury.io/js/sffc-encoder.svg)](http://badge.fury.io/js/sffc-encoder) [![npm version](http://slack.coloredcoins.org/badge.svg)](http://slack.coloredcoins.org)

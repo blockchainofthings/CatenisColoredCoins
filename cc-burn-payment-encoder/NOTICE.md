@@ -1,13 +1,13 @@
 # Notice of reuse
 
-This directory contains source code that has been originally created by a third party and has been incorporated into
-this Blockchain of Things' project. Please notice that the code may have been changed to server the specific needs of
-the current project.
+This directory contains source code that has been originally created by a third party, and has been incorporated into
+this Blockchain of Things' project. Please notice that the code may have been changed to serve the specific needs of
+the project.
 
-The current source code has been spawn from commit `b9324fd` of this public git [repository](https://github.com/Colored-Coins/Burn-Payment-Encoder.git)
-where the original source code is maintained.
+The baseline of the source code in this directory has been spawn from commit `b9324fd` of this public git [repository](https://github.com/Colored-Coins/Burn-Payment-Encoder.git)
+where the original third-party source code is maintained.
 
-The following is the integral contents of the source code's original README file.
+The following is the integral contents of the third-party source code's original README file.
 
 # Burn-Payment-Encoder
 [![Build Status](https://travis-ci.org/Colored-Coins/Burn-Payment-Encoder.svg?branch=master)](https://travis-ci.org/Colored-Coins/Burn-Payment-Encoder) 
