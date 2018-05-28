@@ -1,3 +1,4 @@
+const C3_PROTOCOL = 0x4333;   // Catenis Colored Coins (C3) protocol
 var PROTOCOL = 0x4343
 var VERSION = 0x02
 var MAXBYTESIZE = 80
@@ -72,8 +73,15 @@ function Transaction (data) {
   this.divisibility = data.divisibility
   this.multiSig = data.multiSig || []
   this.amount = data.amount
-  this.sha2 = data.sha2
-  this.torrentHash = data.torrentHash
+
+  if (this.protocol === C3_PROTOCOL) {
+    // Special case for Catenis Colored Coins protocol
+    this.multiHash = data.multiHash;    // Multi-hash of metadata on IPFS
+  }
+  else {
+    this.sha2 = data.sha2
+    this.torrentHash = data.torrentHash
+  }
 }
 
 Transaction.fromHex = function (op_return) {
@@ -140,12 +148,22 @@ Transaction.prototype.shiftOutputs = function (shiftAmount) {
 }
 
 Transaction.prototype.setHash = function (torrentHash, sha2) {
-  if (!torrentHash) throw new Error('Can\'t set hashes without the torrent hash')
-  if (!Buffer.isBuffer(torrentHash)) torrentHash = new Buffer(torrentHash, 'hex')
-  this.torrentHash = torrentHash
-  if (sha2) {
-    if (!Buffer.isBuffer(sha2)) sha2 = new Buffer(sha2, 'hex')
-    this.sha2 = sha2
+  if (this.protocol === C3_PROTOCOL) {
+    // Special case for Catenis Colored Coins protocol
+    if (!torrentHash) {
+      throw new Error('Cannot set hash: multi-hash is missing');
+    }
+
+    this.multiHash = !Buffer.isBuffer(torrentHash) ? new Buffer(torrentHash, 'hex') : torrentHash;
+  }
+  else {
+    if (!torrentHash) throw new Error('Can\'t set hashes without the torrent hash')
+    if (!Buffer.isBuffer(torrentHash)) torrentHash = new Buffer(torrentHash, 'hex')
+    this.torrentHash = torrentHash
+    if (sha2) {
+      if (!Buffer.isBuffer(sha2)) sha2 = new Buffer(sha2, 'hex')
+      this.sha2 = sha2
+    }
   }
 }
 
@@ -170,10 +188,20 @@ Transaction.prototype.toJson = function () {
     data.amount = this.amount
   }
   data.multiSig = this.multiSig
-  if (this.torrentHash) {
-    data.torrentHash = this.torrentHash.toString('hex')
-    if (this.sha2) data.sha2 = this.sha2.toString('hex')
+
+  if (this.protocol === C3_PROTOCOL) {
+    // Special case for Catenis Colored Coins protocol
+    if (this.multiHash) {
+      data.multiHash = this.multiHash.toString('hex');
+    }
   }
+  else {
+    if (this.torrentHash) {
+      data.torrentHash = this.torrentHash.toString('hex')
+      if (this.sha2) data.sha2 = this.sha2.toString('hex')
+    }
+  }
+
   return data
 }
 
