@@ -76,7 +76,7 @@ function Transaction (data) {
 
   if (this.protocol === C3_PROTOCOL) {
     // Special case for Catenis Colored Coins protocol
-    this.multiHash = data.multiHash;    // Multi-hash of metadata on IPFS
+    this.cid = data.cid;    // CID of metadata on IPFS
   }
   else {
     this.sha2 = data.sha2
@@ -151,10 +151,10 @@ Transaction.prototype.setHash = function (torrentHash, sha2) {
   if (this.protocol === C3_PROTOCOL) {
     // Special case for Catenis Colored Coins protocol
     if (!torrentHash) {
-      throw new Error('Cannot set hash: multi-hash is missing');
+      throw new Error('Cannot set hash: CID is missing');
     }
 
-    this.multiHash = !Buffer.isBuffer(torrentHash) ? new Buffer(torrentHash, 'hex') : torrentHash;
+    this.cid = !Buffer.isBuffer(torrentHash) ? new Buffer(torrentHash, 'hex') : torrentHash;
   }
   else {
     if (!torrentHash) throw new Error('Can\'t set hashes without the torrent hash')
@@ -191,8 +191,8 @@ Transaction.prototype.toJson = function () {
 
   if (this.protocol === C3_PROTOCOL) {
     // Special case for Catenis Colored Coins protocol
-    if (this.multiHash) {
-      data.multiHash = this.multiHash.toString('hex');
+    if (this.cid) {
+      data.cid = this.cid.toString('hex');
     }
   }
   else {
