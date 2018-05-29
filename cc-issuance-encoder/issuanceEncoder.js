@@ -78,12 +78,14 @@ module.exports = {
             hash.writeInt8(hash.length - 1, 0);
           }
 
+          // Save what is left of the multi-hash maintaining the leading 'length' byte
           multiHashLeft = multiHashLeft.slice(bytesLeft);
+
+          if (multiHashLeft.length > 0) {
+            multiHashLeft = Buffer.concat([new Uint8Array([multiHashLeft.length]), multiHashLeft]);
+          }
+
           multiHashInNullData = true;
-        }
-        else {
-          // Multi-hash not in null data output. Just get rid of 'length' byte
-          multiHashLeft = multiHashLeft.slice(1);
         }
 
         if (multiHashLeft.length > 0) {
