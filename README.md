@@ -7,7 +7,7 @@ protocol from [coloredcoins.org](http://coloredcoins.org).
 
 This project comprises a collection of source code that has been originally created by a third party.
 
-A NOTICE file— contained in a project's directory— identifies such third-party source code and provides more
+A NOTICE file— contained in each project's directory— identifies such third-party source code and provides more
 information about it.
 
 # License
