@@ -1,4 +1,5 @@
 var bitcoin = require('bitcoinjs-lib')
+var bitcoinjsClassify = require('bitcoinjs-lib/src/classify')
 var bs58check = require('bs58check')
 var hash = require('crypto-hashing')
 var debug = require('debug')('assetIdEncoder')
@@ -39,59 +40,83 @@ var createIdFromPreviousOutputScriptPubKey = function (previousOutputHex, paddin
   return hashAndBase58CheckEncode(buffer, padding, divisibility)
 }
 
-var createIdFromPubKeyHashInput = function (scriptSig, padding, divisibility) {
+var createIdFromPubKeyHashInput = function (script, padding, divisibility, network) {
   debug('createIdFromPubKeyHashInput')
-  if (!scriptSig.asm) {
-    var buffer = new Buffer(scriptSig.hex, 'hex')
-    scriptSig.asm = bitcoin.script.toASM(buffer)
-  }
-  var publicKey = scriptSig.asm.split(' ')[1]
-  debug('publicKey = ', publicKey)
-  publicKey = new Buffer(publicKey, 'hex')
-  var hash256 = hash.sha256(publicKey)
-  var pubKeyHash = hash.ripemd160(hash256)
-  debug('pubKeyHash = ', pubKeyHash)
-  var pubKeyHashOutput = bitcoin.script.pubKeyHashOutput(pubKeyHash)
+  var pubKeyHashOutput = bitcoin.payments.p2pkh({input: script, network: network}).output
   debug('pubKeyHashOutput = ', pubKeyHashOutput)
   return hashAndBase58CheckEncode(pubKeyHashOutput, padding, divisibility)
 }
 
-var createIdFromScriptHashInput = function (scriptSig, padding, divisibility) {
+var createIdFromScriptHashInput = function (script, padding, divisibility, network) {
   debug('createIdFromScriptHashInput')
-  var buffer = scriptSig.hex ? new Buffer(scriptSig.hex, 'hex') : bitcoin.script.fromASM(scriptSig.asm)
-  debug('buffer = ', buffer)
-  var chunks = bitcoin.script.decompile(buffer)
-  var lastChunk = chunks[chunks.length - 1]
-  debug('lastChunk = ', lastChunk)
-  var redeemScriptChunks = bitcoin.script.decompile(lastChunk)
-  redeemScriptChunks = redeemScriptChunks.map(function (chunk) { return Buffer.isBuffer(chunk) ? chunk : new Buffer(chunk.toString(16), 'hex') })
-  var redeemScript = Buffer.concat(redeemScriptChunks)
-  debug('redeemScript = ', redeemScript)
-  var hash256 = hash.sha256(redeemScript)
-  var scriptHash = hash.ripemd160(hash256)
-  var scriptHashOutput = bitcoin.script.scriptHashOutput(scriptHash)
+  var scriptHashOutput = bitcoin.payments.p2sh({input: script, network: network}).output
+  debug('scriptHashOutput = ', scriptHashOutput)
   return hashAndBase58CheckEncode(scriptHashOutput, padding, divisibility)
 }
 
-var createIdFromAddress = function (address, padding, divisibility) {
+var createIdFromWitness = function (witness, padding, divisibility, network) {
+  debug('createIdFromWitness')
+  var output
+  try {
+    output = bitcoin.payments.p2wpkh({ witness: witness, network: network }).output;
+    debug('witnessPubKeyHashOutput = ', output)
+  } catch (e) {}
+  if (!output) {
+    try {
+      output = bitcoin.payments.p2wsh({ witness: witness, network: network }).output;
+      debug('witnessScriptHashOutput = ', output)
+    } catch (e) {}
+  }
+
+  if (!output) {
+    throw new Error('Invalid witness')
+  }
+
+  return hashAndBase58CheckEncode(output, padding, divisibility)
+}
+
+var createIdFromWitnessScriptHashInput = function (script, padding, divisibility, network) {
+  debug('createIdFromWitnessScriptHashInput')
+  var witnessScriptHashOutput = bitcoin.payments.p2wsh({witness: script, network: network}).output
+  debug('witnessScriptHashOutput = ', witnessScriptHashOutput)
+  return hashAndBase58CheckEncode(witnessScriptHashOutput, padding, divisibility)
+}
+
+var createIdFromAddress = function (address, padding, divisibility, network) {
   debug('createIdFromAddress')
-  var addressBuffer = bs58check.decode(address)
-  var versionBuffer = addressBuffer.slice(0, 1)
-  var version = parseInt(versionBuffer.toString('hex'), 16)
-  debug('version = ', version)
-  if (NETWORKVERSIONS.indexOf(version) === -1) throw new Error('Unrecognized address network')
-  if (version === BTC_P2SH || version === BTC_TESTNET_P2SH) {
-    var scriptHash = addressBuffer.slice(versionBuffer.length, 21)
-    var scriptHashOutput = bitcoin.script.scriptHashOutput(scriptHash)
-    debug('scriptHashOutput = ', scriptHashOutput)
-    return hashAndBase58CheckEncode(scriptHashOutput, padding, divisibility)
+  var output
+  if (address.length <= 35) {
+    // Should be a base58 encoded bitcoin address used in P2PKH/P2SH outputs
+    try {
+      output = bitcoin.payments.p2pkh({ address: address, network: network }).output;
+      debug('pubKeyHashOutput = ', output)
+    } catch (e) {}
+    if (!output) {
+      try {
+        output = bitcoin.payments.p2sh({ address: address, network: network }).output;
+        debug('scriptHashOutput = ', output)
+      } catch (e) {}
+    }
   }
-  if (version === BTC_P2PKH || version === BTC_TESTNET_P2PKH) {
-    var pubKeyHash = addressBuffer.slice(versionBuffer.length, 21)
-    var pubKeyHashOutput = bitcoin.script.pubKeyHashOutput(pubKeyHash)
-    debug('pubKeyHashOutput = ', pubKeyHashOutput)
-    return hashAndBase58CheckEncode(pubKeyHashOutput, padding, divisibility)
+  else {
+    // Should be a bech32 encoded bitcoin address used in native segregated witness P2WPKH/P2WSH outputs
+    try {
+      output = bitcoin.payments.p2wpkh({ address: address, network: network }).output;
+      debug('witnessPubKeyHashOutput = ', output)
+    } catch (e) {}
+    if (!output) {
+      try {
+        output = bitcoin.payments.p2wsh({ address: address, network: network }).output;
+        debug('witnessScriptHashOutput = ', output)
+      } catch (e) {}
+    }
   }
+
+  if (!output) {
+    throw new Error('Invalid bitcoin address')
+  }
+
+  return hashAndBase58CheckEncode(output, padding, divisibility)
 }
 
 var hashAndBase58CheckEncode = function (payloadToHash, padding, divisibility) {
@@ -106,7 +131,7 @@ var hashAndBase58CheckEncode = function (payloadToHash, padding, divisibility) {
   return bs58check.encode(concatenation)
 }
 
-module.exports = function (bitcoinTransaction) {
+module.exports = function (bitcoinTransaction, network) {
   debug('bitcoinTransaction.txid = ', bitcoinTransaction.txid)
   if (!bitcoinTransaction.ccdata) throw new Error('Missing Colored Coin Metadata')
   if (bitcoinTransaction.ccdata[0].type !== 'issuance') throw new Error('Not An issuance transaction')
@@ -128,19 +153,22 @@ module.exports = function (bitcoinTransaction) {
 
   if (firstInput.scriptSig && (firstInput.scriptSig.hex || firstInput.scriptSig.asm)) {
     var scriptSig = firstInput.scriptSig
-    scriptSig.hex = scriptSig.hex || bitcoin.script.fromASM(scriptSig.asm).toString('hex')
-    debug('scriptSig.hex = ', scriptSig.hex)
-    var buffer = new Buffer(scriptSig.hex, 'hex')
-    var type = bitcoin.script.classifyInput(buffer)
-    if (type === 'pubkeyhash') {
-      return createIdFromPubKeyHashInput(scriptSig, padding, divisibility)
+    var script = scriptSig.hex ? Buffer.from(scriptSig.hex, 'hex') : bitcoin.script.fromASM(scriptSig.asm)
+    debug('scriptSig = ', script.toString('hex'))
+    var type = bitcoinjsClassify.input(script)
+    if (type === bitcoinjsClassify.types.P2PKH) {
+      return createIdFromPubKeyHashInput(script, padding, divisibility, network)
     }
-    if (type === 'scripthash') {
-      return createIdFromScriptHashInput(scriptSig, padding, divisibility)
+    if (type === bitcoinjsClassify.types.P2SH) {
+      return createIdFromScriptHashInput(script, padding, divisibility, network)
     }
   }
 
+  if (firstInput.txinwitness) {
+      return createIdFromWitness(firstInput.txinwitness, padding, divisibility, network)
+  }
+
   if (firstInput.address) {
-    return createIdFromAddress(firstInput.address, padding, divisibility)
+    return createIdFromAddress(firstInput.address, padding, divisibility, network)
   }
 }
