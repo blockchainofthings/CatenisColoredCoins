@@ -12,5 +12,9 @@
     "debug": "^4.1.1",
     "lodash": "^4.17.15"
   },
-  "repository": "git@bitbucket.org:blockchainofthings/cateniscoloredcoins.git"
+  "repository": "git@bitbucket.org:blockchainofthings/cateniscoloredcoins.git",
+  "devDependencies": {
+    "istanbul": "^0.4.5",
+    "mocha": "^7.0.1"
+  }
 }
