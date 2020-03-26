@@ -166,7 +166,7 @@ module.exports = function (bitcoinTransaction, network) {
   }
 
   if (firstInput.txinwitness) {
-      return createIdFromWitness(firstInput.txinwitness, padding, divisibility, network)
+      return createIdFromWitness(firstInput.txinwitness.map(item => Buffer.from(item, 'hex')), padding, divisibility, network)
   }
 
   if (firstInput.address) {
