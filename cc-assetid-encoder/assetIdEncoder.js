@@ -69,6 +69,7 @@ var createIdFromWitness = function (witness, padding, divisibility, network) {
   }
 
   if (!output) {
+    debug('witness:', witness)
     throw new Error('Invalid witness')
   }
 
