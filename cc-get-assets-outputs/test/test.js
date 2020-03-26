@@ -2,6 +2,7 @@
 var path = require('path')
 var get_assets_outputs = require(path.join(__dirname, '../index.js'))
 var assert = require('assert')
+var bitcoin = require('bitcoinjs-lib')
 
 var issuanceTx = {
   'vin': [
@@ -120,7 +121,7 @@ var transferTx = {
 }
 
 it('Issuance - should transfer the correct amounts, split according to payments', function (done) {
-  var res = get_assets_outputs(issuanceTx)
+  var res = get_assets_outputs(issuanceTx, bitcoin.networks.testnet)
   console.log(JSON.stringify(res, null, 2))
   assert.equal(Array.isArray(res), true)
   assert.equal(res.length, 3)
@@ -147,7 +148,7 @@ it('Issuance - should transfer entire amount to last output when overflow in tot
       'percent': false
     }
   ]
-  var res = get_assets_outputs(issuanceTx)
+  var res = get_assets_outputs(issuanceTx, bitcoin.networks.testnet)
   console.log(JSON.stringify(res, null, 2))
   assert.equal(Array.isArray(res), true)
   assert.equal(res.length, 3)
@@ -174,7 +175,7 @@ it('Issuance - should transfer entire amount to last output there is overflow in
       'percent': false
     }
   ]
-  var res = get_assets_outputs(issuanceTx)
+  var res = get_assets_outputs(issuanceTx, bitcoin.networks.testnet)
   console.log(JSON.stringify(res, null, 2))
   assert.equal(Array.isArray(res), true)
   assert.equal(res.length, 3)
@@ -186,7 +187,7 @@ it('Issuance - should transfer entire amount to last output there is overflow in
 })
 
 it('Transfer - should transfer the correct amounts, split according to payments (even when asset is aggregatable)', function (done) {
-  var res = get_assets_outputs(transferTx)
+  var res = get_assets_outputs(transferTx, bitcoin.networks.testnet)
   console.log(JSON.stringify(res, null, 2))
   assert.equal(Array.isArray(res), true)
   assert.equal(res.length, 3)
@@ -209,7 +210,7 @@ it('Transfer - should transfer the entire amount to last output, when there is a
       'percent': false
     }
   ]
-  var res = get_assets_outputs(transferTx)
+  var res = get_assets_outputs(transferTx, bitcoin.networks.testnet)
   console.log(JSON.stringify(res, null, 2))
   assert.equal(Array.isArray(res), true)
   assert.equal(res.length, 3)
@@ -237,7 +238,7 @@ it('Transfer - should transfer correct amounts, when there is an overflow to the
       'percent': false
     }
   ]
-  var res = get_assets_outputs(transferTx)
+  var res = get_assets_outputs(transferTx, bitcoin.networks.testnet)
   console.log(JSON.stringify(res, null, 2))
   assert.equal(Array.isArray(res), true)
   assert.equal(res.length, 3)
@@ -275,7 +276,7 @@ it('Transfer - should transfer correct amounts, when there is an overflow to the
       'percent': false
     }
   ]
-  var res = get_assets_outputs(transferTx)
+  var res = get_assets_outputs(transferTx, bitcoin.networks.testnet)
   console.log(JSON.stringify(res, null, 2))
   assert.equal(Array.isArray(res), true)
   assert.equal(res.length, 3)
@@ -305,7 +306,7 @@ it('Transfer - should transfer the entire amount to last output, when there is a
       asset.aggregationPolicy = 'dispersed'
     })
   })
-  var res = get_assets_outputs(transferTx)
+  var res = get_assets_outputs(transferTx, bitcoin.networks.testnet)
   console.log(JSON.stringify(res, null, 2))
   assert.equal(Array.isArray(res), true)
   assert.equal(res.length, 3)
@@ -341,7 +342,7 @@ it('Transfer - should transfer the entire amount to last output, when there is a
       'percent': false
     }
   ]
-  var res = get_assets_outputs(transferTx)
+  var res = get_assets_outputs(transferTx, bitcoin.networks.testnet)
   console.log(JSON.stringify(res, null, 2))
   assert.equal(transferTx.overflow, true)
   assert.equal(Array.isArray(res), true)
@@ -385,7 +386,7 @@ it('Transfer - should not have overflow with payment with amount 0', function (d
       'percent': false
     }
   ]
-  var res = get_assets_outputs(transferTx)
+  var res = get_assets_outputs(transferTx, bitcoin.networks.testnet)
   console.log(JSON.stringify(res, null, 2))
   assert.equal(transferTx.overflow, false)
   assert.equal(Array.isArray(res), true)
@@ -431,7 +432,7 @@ it('Transfer - should transfer entire amount to last output when there is a paym
       'percent': false
     }
   ]
-  var res = get_assets_outputs(transferTx)
+  var res = get_assets_outputs(transferTx, bitcoin.networks.testnet)
   console.log(JSON.stringify(res, null, 2))
   assert.equal(transferTx.overflow, true)
   assert.equal(Array.isArray(res), true)
@@ -518,7 +519,7 @@ it('Transfer - should transfer remaining amounts to last output', function (done
       }
     ]
   }
-  var res = get_assets_outputs(tx)
+  var res = get_assets_outputs(tx, bitcoin.networks.testnet)
   console.log(JSON.stringify(res, null, 2))
   assert.equal(tx.overflow, false)
   assert.equal(Array.isArray(res), true)
@@ -617,7 +618,7 @@ it('Burn - should transfer and burn assets', function (done) {
     ]
   }
 
-  var res = get_assets_outputs(burnTx)
+  var res = get_assets_outputs(burnTx, bitcoin.networks.testnet)
   console.log(JSON.stringify(res, null, 2))
   assert.deepEqual(res, [
     [
@@ -732,7 +733,7 @@ it('Burn - should transfer all assets to last output when there is an overflow',
     ]
   }
 
-  var res = get_assets_outputs(burnTx)
+  var res = get_assets_outputs(burnTx, bitcoin.networks.testnet)
   console.log(JSON.stringify(res, null, 2))
   assert.equal(burnTx.overflow, true)
   assert.deepEqual(res[0], undefined)

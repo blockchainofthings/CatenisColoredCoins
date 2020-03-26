@@ -2,14 +2,14 @@ var assetIdencoder = require('../cc-assetid-encoder')
 var debug = require('debug')('../cc-get-assets-outputs')
 var _ = require('lodash')
 
-module.exports = function (raw_transaction) {
+module.exports = function (raw_transaction, network) {
   var transaction_data = JSON.parse(JSON.stringify(raw_transaction))
   var ccdata = transaction_data.ccdata[0]
   var assets = []
   if (ccdata.type === 'issuance') {
     transaction_data.vin[0].assets = transaction_data.vin[0].assets || []
     transaction_data.vin[0].assets.unshift({
-      assetId: assetIdencoder(transaction_data),
+      assetId: assetIdencoder(transaction_data, network),
       amount: ccdata.amount,
       issueTxid: transaction_data.txid,
       divisibility: ccdata.divisibility,
