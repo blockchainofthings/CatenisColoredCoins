@@ -152,6 +152,10 @@ module.exports = function (bitcoinTransaction, network) {
     return createIdFromPreviousOutputScriptPubKey(firstInput.previousOutput.hex, padding, divisibility)
   }
 
+  if (firstInput.txinwitness) {
+    return createIdFromWitness(firstInput.txinwitness.map(item => Buffer.from(item, 'hex')), padding, divisibility, network)
+  }
+
   if (firstInput.scriptSig && (firstInput.scriptSig.hex || firstInput.scriptSig.asm)) {
     var scriptSig = firstInput.scriptSig
     var script = scriptSig.hex ? Buffer.from(scriptSig.hex, 'hex') : bitcoin.script.fromASM(scriptSig.asm)
@@ -163,10 +167,6 @@ module.exports = function (bitcoinTransaction, network) {
     if (type === bitcoinjsClassify.types.P2SH) {
       return createIdFromScriptHashInput(script, padding, divisibility, network)
     }
-  }
-
-  if (firstInput.txinwitness) {
-      return createIdFromWitness(firstInput.txinwitness.map(item => Buffer.from(item, 'hex')), padding, divisibility, network)
   }
 
   if (firstInput.address) {
