@@ -10,7 +10,7 @@
     "clone": "^2.1.1",
     "crypto-hashing": "0.3.1",
     "debug": "^4.1.1",
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.19"
   },
   "repository": "git@bitbucket.org:blockchainofthings/cateniscoloredcoins.git",
   "devDependencies": {
