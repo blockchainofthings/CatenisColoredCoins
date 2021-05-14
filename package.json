@@ -14,7 +14,7 @@
   },
   "repository": "git@bitbucket.org:blockchainofthings/cateniscoloredcoins.git",
   "devDependencies": {
-    "istanbul": "^0.4.5",
-    "mocha": "^8.4.0"
+    "mocha": "^8.4.0",
+    "nyc": "^15.1.0"
   }
 }

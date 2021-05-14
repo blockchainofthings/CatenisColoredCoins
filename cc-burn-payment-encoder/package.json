@@ -5,8 +5,8 @@
   "main": "paymentEncoder.js",
   "scripts": {
     "test": "mocha",
-    "coverage": "istanbul cover _mocha -- -R spec",
-    "coveralls": "cat ./coverage/lcov.info | coveralls"
+    "coverage": "nyc npm run test",
+    "coverage-html-report": "npm run coverage && nyc report -r html"
   },
   "keywords": [
     "colored coins",
