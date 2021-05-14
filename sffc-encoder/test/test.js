@@ -83,7 +83,7 @@ describe('Should return errors', function (done) {
       assert.throws(function () {
         balz.encode(samples[i])
       }
-      , 'Number is out of bounds'
+      , new Error('Number is out of bounds')
       , 'Out of bound number should throw new error')
     }
     done()

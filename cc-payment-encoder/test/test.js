@@ -76,7 +76,7 @@ describe('Payment Decode Encode', function () {
     for (var i = 0; i < testCase.length; i++) {
       assert.throws(function () {
         paymentEncode.encode(testCase[i])
-      }, 'Output value is out of bounds'
+      }, new Error('Output value is out of bounds')
       , 'Should Throw Error')
     }
     done()
@@ -86,7 +86,7 @@ describe('Payment Decode Encode', function () {
     var testCase = {skip: true, range: true, percent: false, output: -1, amount: 321321}
     assert.throws(function () {
       paymentEncode.encode(testCase)
-    }, 'Output Can\'t be negative'
+    }, new Error('Output Can\'t be negative')
     , 'Should Throw Error')
     done()
   })
@@ -95,7 +95,7 @@ describe('Payment Decode Encode', function () {
     var testCase = {skip: true, range: true, percent: true, amount: 1323004030000}
     assert.throws(function () {
       paymentEncode.encode(testCase)
-    }, 'Needs output value'
+    }, new Error('Needs output value')
     , 'Should Throw Error')
     done()
   })
@@ -104,7 +104,7 @@ describe('Payment Decode Encode', function () {
     var testCase = {skip: true, range: true, percent: true, output: 12}
     assert.throws(function () {
       paymentEncode.encode(testCase)
-    }, 'Needs amount value'
+    }, new Error('Needs amount value')
     , 'Should Throw Error')
     done()
   })

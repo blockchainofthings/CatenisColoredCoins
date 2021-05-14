@@ -4,8 +4,8 @@
   "description": "The encoding/decoding functions for the colored-coins scheme issuance set of OP_CODES",
   "main": "issuanceEncoder.js",
   "dependencies": {
-    "sffc-encoder": "^0.1.9",
-    "cc-payment-encoder": "^1.0.0"
+    "sffc-encoder": "^0.1.12",
+    "cc-payment-encoder": "^1.0.1"
   },
   "directories": {
     "test": "test"

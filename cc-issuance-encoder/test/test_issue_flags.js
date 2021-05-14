@@ -91,7 +91,7 @@ describe('Test issue flags encoder', function () {
     for (var i = 0; i < testCase.length; i++) {
       assert.throws(function () {
         ccEncoding.encode(testCase[i])
-      }, 'Divisibility not in range'
+      }, new Error('Divisibility not in range')
       , 'Wrong fail')
     }
 

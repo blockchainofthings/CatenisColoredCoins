@@ -139,7 +139,7 @@ describe('Create Transaction from raw data', function () {
     var a = {}
     assert.throws(function () {
       transaction.setAmount(a.c, a.d)
-    }, 'Amount has to be defined'
+    }, new Error('Amount has to be defined')
     , 'Amount has to be defined')
     transaction.setLockStatus(false)
     transaction.setAmount(10, 3)
