@@ -34,7 +34,7 @@ module.exports = function (raw_transaction, network) {
 // returns true if succeeds to apply payments to the given assets array, false if runs into an invalid payment
 function transfer (assets, payments, transaction_data) {
   debug('transfer')
-  var _payments = _.cloneDeep(payments)
+  var _payments = convertRangePayments(_.cloneDeep(payments))
   var _inputs = _.cloneDeep(transaction_data.vin)
   var currentInputIndex = 0
   var currentAssetIndex = 0
@@ -120,6 +120,30 @@ function transfer (assets, payments, transaction_data) {
   transferToLastOutput(assets, _inputs, transaction_data.vout.length - 1)
 
   return true
+}
+
+// Convert range payments into regular (pay to output) payments
+function convertRangePayments(payments) {
+  const convertedPayments = [];
+
+  payments.forEach(function (payment) {
+    if (payment.range) {
+      for (let idx = 0; idx <= payment.output; idx++) {
+        convertedPayments.push({
+          input: payment.input,
+          range: false,
+          percent: payment.percent,
+          output: idx,
+          amount: payment.amount
+        });
+      }
+    }
+    else {
+      convertedPayments.push(payment);
+    }
+  });
+
+  return convertedPayments;
 }
 
 // transfer all positive amount assets from inputs to last output. aggregate if possible.

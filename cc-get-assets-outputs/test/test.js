@@ -759,3 +759,88 @@ it('Burn - should transfer all assets to last output when there is an overflow',
   done()
 })
 
+it('Transfer - should correctly process range payments', function (done) {
+  // Reset transfer tx
+  transferTx = {
+    'vin': [
+      {
+        'assets': [
+          {
+            'assetId': 'A',
+            'amount': 10,
+            'issueTxid': 'aaa',
+            'divisibility': 0,
+            'lockStatus': false,
+            'aggregationPolicy': 'aggregatable'
+          },
+          {
+            'assetId': 'A',
+            'amount': 5,
+            'issueTxid': 'aaa',
+            'divisibility': 0,
+            'lockStatus': false,
+            'aggregationPolicy': 'aggregatable'
+          }
+        ]
+      },
+      {
+        'assets': [
+          {
+            'assetId': 'A',
+            'amount': 6,
+            'issueTxid': 'aaa',
+            'divisibility': 0,
+            'lockStatus': false,
+            'aggregationPolicy': 'aggregatable'
+          }
+        ]
+      }
+    ],
+    'vout': [{},{},{},{},{},{}],
+    'ccdata': [
+      {
+        'payments': [
+          {
+            'input': 0,
+            'amount': 3,
+            'output': 4,
+            'range': true,
+            'percent': false
+          }
+        ],
+        'protocol': 0x4343,
+        'version': 1,
+        'type': 'transfer',
+        'multiSig': [
+        ]
+      }
+    ]
+  };
+
+  const res = get_assets_outputs(transferTx, bitcoin.networks.testnet);
+  console.log(JSON.stringify(res, null, 2))
+
+  for (let idx = 0; idx <= 4; idx++) {
+    assert.deepEqual(res[idx],[
+      {
+        "assetId": "A",
+        "amount": 3,
+        "issueTxid": "aaa",
+        "divisibility": 0,
+        "lockStatus": false,
+        "aggregationPolicy": "aggregatable"
+      }
+    ]);
+  }
+  assert.deepEqual(res[5],[
+    {
+      "assetId": "A",
+      "amount": 6,
+      "issueTxid": "aaa",
+      "divisibility": 0,
+      "lockStatus": false,
+      "aggregationPolicy": "aggregatable"
+    }
+  ]);
+  done();
+})
