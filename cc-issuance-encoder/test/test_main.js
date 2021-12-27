@@ -25,7 +25,6 @@ describe('80 byte OP_RETURN', function() {
   var data = {
     amount: 15,
     divisibility: 2,
-    lockStatus: false,
     protocol: 0x4343, // Error when start with 0
     version: 0x02,
     lockStatus: true,
@@ -273,5 +272,285 @@ describe('80 byte OP_RETURN', function() {
 
     data.torrentHash = torrentHash
     done()
+  })
+
+  describe('Catenis Colored Coins (C3) protocol', function () {
+    const cid = Buffer.from('1220987b5972d717351b0a1d014d0486697dc6cf7ea427a4d69fc9242642055e1d65', 'hex');
+    const data2 = {
+      amount: 15,
+      divisibility: 2,
+      protocol: 0x4333,
+      version: 0x02,
+      lockStatus: true,
+      aggregationPolicy: 'aggregatable',
+      payments: []
+    };
+    data2.payments.push({skip: false, range: false, percent: false, output: 1, amount: 15});
+
+    it('Issuance OP_CODE 0x06 - No metadata (no CID)', function (done) {
+      this.timeout(0);
+
+      code = ccEncoding.encode(data2, 80);
+      console.log(code.codeBuffer.toString('hex'), code.codeBuffer.byteLength, code.leftover);
+
+      const consume = consumer(code.codeBuffer.slice(0, code.codeBuffer.length));
+      assert.deepEqual(toBuffer('4333'), consume(2)); // C3 protocol
+      assert.deepEqual(toBuffer('02'), consume(1));   // Version
+      assert.deepEqual(toBuffer('06'), consume(1));   // Issuance OP_CODE
+      assert.deepEqual(toBuffer('0f'), consume(1));   // Issued amount
+      assert.deepEqual(toBuffer('010f'), consume(2)); // Payments
+      assert.deepEqual(toBuffer('50'), consume(1));   // Divisibility + lock status + reserved bits currently 0
+
+      decoded = ccEncoding.decode(code.codeBuffer);
+      console.log(decoded);
+
+      assert.equal(decoded.amount, data2.amount);
+      assert.equal(decoded.divisibility, data2.divisibility);
+      assert.equal(decoded.lockStatus, data2.lockStatus);
+      assert.equal(decoded.protocol, data2.protocol);
+      assert.deepEqual(decoded.payments, data2.payments);
+      assert.deepEqual(decoded.multiSig, code.leftover);
+
+      done();
+    })
+
+    it('Issuance OP_CODE 0x01 - Whole CID in null data output', function (done) {
+      this.timeout(0);
+
+      data2.amount = 32;  // Change amount to occupy 2 bytes so that number of remaining bytes in null data is odd
+      data2.cid = cid;
+
+      // Reset payments adding as many as possible to keep metadata (1-byte length + CID) in null data output
+      data2.payments = [];
+      for (let i = 0 ; i < 19 ; i++) {
+        data2.payments.push({skip: false, range: false, percent: false, output: 1, amount: 1});
+      }
+
+      code = ccEncoding.encode(data2, 80);
+      console.log(code.codeBuffer.toString('hex'), code.codeBuffer.byteLength, code.leftover);
+
+      const consume = consumer(code.codeBuffer.slice(0, code.codeBuffer.length));
+      assert.deepEqual(toBuffer('4333'), consume(2)); // Protocol
+      assert.deepEqual(toBuffer('02'), consume(1));   // Version
+      assert.deepEqual(toBuffer('01'), consume(1));   // Issuance OP_CODE
+      assert.deepEqual(toBuffer(cid.byteLength), consume(1));    // Length of CID
+      assert.deepEqual(cid, consume(cid.byteLength));   // CID
+      assert.deepEqual(toBuffer('2200'), consume(2));   // Issued amount
+      for (var i = 0 ; i < data2.payments.length ; i++) {
+        assert.deepEqual(toBuffer('0101'), consume(2));   // Payment
+      }
+      assert.deepEqual(toBuffer('50'), consume(1));   // Divisibility + lock status + reserved bits currently 0
+
+      decoded = ccEncoding.decode(code.codeBuffer);
+      console.log(decoded);
+
+      assert.equal(decoded.amount, data2.amount);
+      assert.equal(decoded.divisibility, data2.divisibility);
+      assert.equal(decoded.lockStatus, data2.lockStatus);
+      assert.equal(decoded.protocol, data2.protocol);
+      assert.deepEqual(decoded.payments, data2.payments);
+      assert.deepEqual(decoded.multiSig, code.leftover);
+      assert.deepEqual(decoded.cid, cid);
+
+      done();
+    })
+
+    it('Issuance OP_CODE 0x02 - start of CID in null data output, continuation in single key of multi-sig output (1 out of 2)', function (done) {
+      this.timeout(0);
+
+      data2.amount = 31;  // Change amount back to occupy a single byte
+
+      // Add one more payment
+      for (let i = 0 ; i < 1 ; i++) {
+        data2.payments.push({skip: false, range: false, percent: false, output: 1, amount: 1});
+      }
+
+      code = ccEncoding.encode(data2, 80);
+      console.log(code.codeBuffer.toString('hex'), code.codeBuffer.byteLength, code.leftover);
+
+      const consume = consumer(code.codeBuffer.slice(0, code.codeBuffer.length));
+      assert.deepEqual(toBuffer('4333'), consume(2)); // Protocol
+      assert.deepEqual(toBuffer('02'), consume(1));   // Version
+      assert.deepEqual(toBuffer('02'), consume(1));   // Issuance OP_CODE
+      assert.deepEqual(toBuffer(cid.byteLength - 1), consume(1));    // Length of CID
+      assert.deepEqual(cid.slice(0, cid.byteLength - 1), consume(cid.byteLength - 1));   // 1st part of CID
+      assert.deepEqual(toBuffer(31), consume(1));   // Issued amount
+      for (var i = 0 ; i < data2.payments.length ; i++) {
+        assert.deepEqual(toBuffer('0101'), consume(2));   // Payment
+      }
+      assert.deepEqual(toBuffer('50'), consume(1));   // Divisibility + lock status + reserved bits currently 0
+
+      decoded = ccEncoding.decode(code.codeBuffer);
+      console.log(decoded);
+
+      assert.equal(decoded.amount, data2.amount);
+      assert.equal(decoded.divisibility, data2.divisibility);
+      assert.equal(decoded.lockStatus, data2.lockStatus);
+      assert.equal(decoded.protocol, data2.protocol);
+      assert.deepEqual(decoded.payments, data2.payments);
+      assert.equal(decoded.multiSig.length, 1);
+      assert.equal(decoded.multiSig.length, code.leftover.length);
+      assert.deepEqual(decoded.multiSig[0], { hashType: 'cid', index: 1 });
+      assert.deepEqual(code.leftover[0], Buffer.concat([toBuffer(1), cid.slice(-1)]));
+      assert.deepEqual(decoded.cid, cid.slice(0, cid.byteLength - 1));
+
+      done();
+    })
+
+    it('Issuance OP_CODE 0x03 - Start of CID in null data output, continuation in two keys of multi-sig output (1 out of 3)', function (done) {
+      this.timeout(0);
+
+      //data2.amount = 31;  // Change amount back to occupy a single byte
+
+      // Reset payments
+      data2.payments = [];
+      for (let i = 0 ; i < 36 ; i++) {
+        data2.payments.push({skip: false, range: false, percent: false, output: 1, amount: 1});
+      }
+
+      code = ccEncoding.encode(data2, 80);
+      console.log(code.codeBuffer.toString('hex'), code.codeBuffer.byteLength, code.leftover);
+
+      const consume = consumer(code.codeBuffer.slice(0, code.codeBuffer.length));
+      assert.deepEqual(toBuffer('4333'), consume(2)); // Protocol
+      assert.deepEqual(toBuffer('02'), consume(1));   // Version
+      assert.deepEqual(toBuffer('03'), consume(1));   // Issuance OP_CODE
+      assert.deepEqual(toBuffer(1), consume(1));    // Length of CID
+      assert.deepEqual(cid.slice(0, 1), consume(1));   // 1st part of CID
+      assert.deepEqual(toBuffer(31), consume(1));   // Issued amount
+      for (var i = 0 ; i < data2.payments.length ; i++) {
+        assert.deepEqual(toBuffer('0101'), consume(2));   // Payment
+      }
+      assert.deepEqual(toBuffer('50'), consume(1));   // Divisibility + lock status + reserved bits currently 0
+
+      decoded = ccEncoding.decode(code.codeBuffer);
+      console.log(decoded);
+
+      assert.equal(decoded.amount, data2.amount);
+      assert.equal(decoded.divisibility, data2.divisibility);
+      assert.equal(decoded.lockStatus, data2.lockStatus);
+      assert.equal(decoded.protocol, data2.protocol);
+      assert.deepEqual(decoded.payments, data2.payments);
+      assert.equal(decoded.multiSig.length, 2);
+      assert.equal(decoded.multiSig.length, code.leftover.length);
+      assert.deepEqual(decoded.multiSig[0], { hashType: 'cid', index: 1 });
+      assert.deepEqual(decoded.multiSig[1], { hashType: 'cid', index: 2 });
+      assert.deepEqual(code.leftover[0], Buffer.concat([toBuffer(33), cid.slice(1, 32)]));
+      assert.deepEqual(code.leftover[1], cid.slice(-2));
+      assert.deepEqual(decoded.cid, cid.slice(0, 1));
+
+      done();
+    })
+
+    it('Issuance OP_CODE 0x04 - Whole CID in single key of multi-sig output (1 out of 2) - Note: this should never happen since smallest size of CID is 34, which does not fit in a single multi-sig key', function (done) {
+      this.timeout(0);
+
+      // Simulate a shorter CID (which in practice should never happen)
+      data2.cid = cid.slice(0, 31);
+
+      //data2.amount = 31;  // Change amount back to occupy a single byte
+
+      // Reset payments
+      data2.payments = [];
+      for (let i = 0 ; i < 37 ; i++) {
+        data2.payments.push({skip: false, range: false, percent: false, output: 1, amount: 1});
+      }
+
+      code = ccEncoding.encode(data2, 80);
+      console.log(code.codeBuffer.toString('hex'), code.codeBuffer.byteLength, code.leftover);
+
+      const consume = consumer(code.codeBuffer.slice(0, code.codeBuffer.length));
+      assert.deepEqual(toBuffer('4333'), consume(2)); // Protocol
+      assert.deepEqual(toBuffer('02'), consume(1));   // Version
+      assert.deepEqual(toBuffer('04'), consume(1));   // Issuance OP_CODE
+      assert.deepEqual(toBuffer(31), consume(1));   // Issued amount
+      for (var i = 0 ; i < data2.payments.length ; i++) {
+        assert.deepEqual(toBuffer('0101'), consume(2));   // Payment
+      }
+      assert.deepEqual(toBuffer('50'), consume(1));   // Divisibility + lock status + reserved bits currently 0
+
+      decoded = ccEncoding.decode(code.codeBuffer);
+      console.log(decoded);
+
+      assert.equal(decoded.amount, data2.amount);
+      assert.equal(decoded.divisibility, data2.divisibility);
+      assert.equal(decoded.lockStatus, data2.lockStatus);
+      assert.equal(decoded.protocol, data2.protocol);
+      assert.deepEqual(decoded.payments, data2.payments);
+      assert.equal(decoded.multiSig.length, 1);
+      assert.equal(decoded.multiSig.length, code.leftover.length);
+      assert.deepEqual(decoded.multiSig[0], { hashType: 'cid', index: 1 });
+      assert.deepEqual(code.leftover[0], Buffer.concat([toBuffer(31), cid.slice(0, 31)]));
+      assert.equal(decoded.cid, undefined);
+
+      done();
+    })
+
+    it('Issuance OP_CODE 0x05 - Whole CID in two keys of multi-sig output (1 out of 3)', function (done) {
+      this.timeout(0);
+
+      // Reset CID back to normal
+      data2.cid = cid;
+
+      //data2.amount = 31;  // Change amount back to occupy a single byte
+
+      // Reset payments
+      data2.payments = [];
+      for (let i = 0 ; i < 37 ; i++) {
+        data2.payments.push({skip: false, range: false, percent: false, output: 1, amount: 1});
+      }
+
+      code = ccEncoding.encode(data2, 80);
+      console.log(code.codeBuffer.toString('hex'), code.codeBuffer.byteLength, code.leftover);
+
+      const consume = consumer(code.codeBuffer.slice(0, code.codeBuffer.length));
+      assert.deepEqual(toBuffer('4333'), consume(2)); // Protocol
+      assert.deepEqual(toBuffer('02'), consume(1));   // Version
+      assert.deepEqual(toBuffer('05'), consume(1));   // Issuance OP_CODE
+      assert.deepEqual(toBuffer(31), consume(1));   // Issued amount
+      for (var i = 0 ; i < data2.payments.length ; i++) {
+        assert.deepEqual(toBuffer('0101'), consume(2));   // Payment
+      }
+      assert.deepEqual(toBuffer('50'), consume(1));   // Divisibility + lock status + reserved bits currently 0
+
+      decoded = ccEncoding.decode(code.codeBuffer);
+      console.log(decoded);
+
+      assert.equal(decoded.amount, data2.amount);
+      assert.equal(decoded.divisibility, data2.divisibility);
+      assert.equal(decoded.lockStatus, data2.lockStatus);
+      assert.equal(decoded.protocol, data2.protocol);
+      assert.deepEqual(decoded.payments, data2.payments);
+      assert.equal(decoded.multiSig.length, 2);
+      assert.equal(decoded.multiSig.length, code.leftover.length);
+      assert.deepEqual(decoded.multiSig[0], { hashType: 'cid', index: 1 });
+      assert.deepEqual(decoded.multiSig[1], { hashType: 'cid', index: 2 });
+      assert.deepEqual(code.leftover[0], Buffer.concat([toBuffer(34), cid.slice(0, 31)]));
+      assert.deepEqual(code.leftover[1], cid.slice(-3));
+      assert.equal(decoded.cid, undefined);
+
+      done();
+    })
+
+    it('should fail if CID is too large and won\'t fit', function (done) {
+      this.timeout(0);
+
+      // Simulate a larger CID
+      data2.cid = Buffer.alloc(64, 0x01);
+
+      //data2.amount = 31;  // Change amount back to occupy a single byte
+
+      // Reset payments
+      data2.payments = [];
+      for (let i = 0 ; i < 37 ; i++) {
+        data2.payments.push({skip: false, range: false, percent: false, output: 1, amount: 1});
+      }
+
+      assert.throws(() => {
+        ccEncoding.encode(data2, 80);
+      }, new Error('CID too large to fit in transaction'));
+
+      done();
+    })
   })
 })
