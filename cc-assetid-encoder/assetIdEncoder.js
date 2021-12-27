@@ -76,13 +76,6 @@ var createIdFromWitness = function (witness, padding, divisibility, network) {
   return hashAndBase58CheckEncode(output, padding, divisibility)
 }
 
-var createIdFromWitnessScriptHashInput = function (script, padding, divisibility, network) {
-  debug('createIdFromWitnessScriptHashInput')
-  var witnessScriptHashOutput = bitcoin.payments.p2wsh({witness: script, network: network}).output
-  debug('witnessScriptHashOutput = ', witnessScriptHashOutput)
-  return hashAndBase58CheckEncode(witnessScriptHashOutput, padding, divisibility)
-}
-
 var createIdFromAddress = function (address, padding, divisibility, network) {
   debug('createIdFromAddress')
   var output
