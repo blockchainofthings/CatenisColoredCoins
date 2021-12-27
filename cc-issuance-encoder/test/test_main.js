@@ -309,7 +309,8 @@ describe('80 byte OP_RETURN', function() {
       assert.equal(decoded.lockStatus, data2.lockStatus);
       assert.equal(decoded.protocol, data2.protocol);
       assert.deepEqual(decoded.payments, data2.payments);
-      assert.deepEqual(decoded.multiSig, code.leftover);
+      assert.equal(decoded.multiSig.length, 0);
+      assert.equal(decoded.multiSig.length, code.leftover.length);
 
       done();
     })
@@ -349,13 +350,14 @@ describe('80 byte OP_RETURN', function() {
       assert.equal(decoded.lockStatus, data2.lockStatus);
       assert.equal(decoded.protocol, data2.protocol);
       assert.deepEqual(decoded.payments, data2.payments);
-      assert.deepEqual(decoded.multiSig, code.leftover);
+      assert.equal(decoded.multiSig.length, 0);
+      assert.equal(decoded.multiSig.length, code.leftover.length);
       assert.deepEqual(decoded.cid, cid);
 
       done();
     })
 
-    it('Issuance OP_CODE 0x02 - start of CID in null data output, continuation in single key of multi-sig output (1 out of 2)', function (done) {
+    it('Issuance OP_CODE 0x02 - Start of CID in null data output, continuation in single key of multi-sig output (1 out of 2)', function (done) {
       this.timeout(0);
 
       data2.amount = 31;  // Change amount back to occupy a single byte
