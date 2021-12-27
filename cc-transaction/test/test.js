@@ -110,6 +110,30 @@ describe('Create Transaction from raw data', function () {
     transaction.addPayment(0, 12, 3)
     transaction.addPayment(0, 12, 3, true)
     transaction.addPayment(1, 132, 1, false, true)
+    transaction.shiftOutputs(2)
+    assert.deepEqual(transaction.payments, [
+      {
+        input: 0,
+        amount: 12,
+        output: 5,
+        range: false,
+        percent: false
+      },
+      {
+        input: 0,
+        amount: 12,
+        output: 5,
+        range: true,
+        percent: false
+      },
+      {
+        input: 1,
+        amount: 132,
+        output: 3,
+        range: false,
+        percent: true
+      }
+    ])
     transactionJson1 = transaction.toJson()
     // console.log('Second transaction Object: ', transaction)
     code = transaction.encode()
@@ -143,6 +167,36 @@ describe('Create Transaction from raw data', function () {
     , 'Amount has to be defined')
     transaction.setLockStatus(false)
     transaction.setAmount(10, 3)
+    transaction.setAggregationPolicy('aggregatable')
+    transaction.allowRules()
+    transaction.setHash(
+        Buffer.from('46b7e0d000d69330ac1caa48c6559763828762e1', 'hex'),
+        Buffer.from('03ffdf3d6790a21c5fc97a62fe1abc5f66922d7dee3725261ce02e86f078d190', 'hex')
+    )
+    transactionJson1 = transaction.toJson()
+    // console.log('Second transaction Object: ', transaction)
+    code = transaction.encode()
+    // console.log('Second transaction code: ', code)
+    transactionJson2 = Transaction.fromHex(code.codeBuffer).toJson()
+    // console.log('second transaction decoded back: ', transactionJson2)
+    assert.deepEqual(transactionJson1, transactionJson2, 'Not Equal')
+    done()
+  })
+
+  it('should encode an empty issuance transaction for the Catenis Colored Coins (C3) protocol', function (done) {
+    transaction = Transaction.newTransaction(0x4333, 0x02)
+    var a = {}
+    assert.throws(function () {
+          transaction.setAmount(a.c, a.d)
+        }, new Error('Amount has to be defined')
+        , 'Amount has to be defined')
+    transaction.setLockStatus(false)
+    transaction.setAmount(10, 3)
+    transaction.setAggregationPolicy('aggregatable')
+    transaction.allowRules()
+    transaction.setHash(
+        Buffer.from('1220987b5972d717351b0a1d014d0486697dc6cf7ea427a4d69fc9242642055e1d65', 'hex')
+    )
     transactionJson1 = transaction.toJson()
     // console.log('Second transaction Object: ', transaction)
     code = transaction.encode()
