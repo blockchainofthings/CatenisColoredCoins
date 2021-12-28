@@ -60,7 +60,7 @@ Returns the Integer as number
 var sffc = require('sffc-encoder')
 var consumer = require('buffer-consumer')
 
-var codeBuffer = new Buffer([0x82,0x76,0x0e,0x1b,0x48])
+var codeBuffer = Buffer.from([0x82,0x76,0x0e,0x1b,0x48])
 
 console.log(sffc.decode(consumer(codeBuffer))) // Will print: 1321321321
 ```

@@ -13,13 +13,13 @@ var toBuffer = function (val) {
   if (val.length % 2 == 1) {
     val = '0'+val
   }
-  return new Buffer(val, 'hex')
+  return Buffer.from(val, 'hex')
 }
 
 describe('Colored-Coins transfer Decoding', function () {
   it('should return the right decoding', function (done) {
     this.timeout(0)
-    var torrentHash = new Buffer(20)
+    var torrentHash = Buffer.alloc(20)
     torrentHash.fill(0)
     torrentHash[3] = 0x23
     torrentHash[4] = 0x2f
@@ -27,7 +27,7 @@ describe('Colored-Coins transfer Decoding', function () {
     torrentHash[12] = 0xe3
     torrentHash[19] = 0xa3
     torrentHash[11] = 0x21
-    var sha2 = new Buffer(32)
+    var sha2 = Buffer.alloc(32)
     sha2.fill(0)
     sha2[0] = 0xf3
     sha2[1] = 0x2f
@@ -100,8 +100,8 @@ describe('Colored-Coins transfer Decoding', function () {
 describe('80 byte OP_RETURN', function () {
   var code
   var decoded
-  var torrentHash = new Buffer('46b7e0d000d69330ac1caa48c6559763828762e1', 'hex')
-  var sha2 = new Buffer('03ffdf3d6790a21c5fc97a62fe1abc5f66922d7dee3725261ce02e86f078d190', 'hex')
+  var torrentHash = Buffer.from('46b7e0d000d69330ac1caa48c6559763828762e1', 'hex')
+  var sha2 = Buffer.from('03ffdf3d6790a21c5fc97a62fe1abc5f66922d7dee3725261ce02e86f078d190', 'hex')
   var data = {
     protocol: 0x4343,
     version: 0x02,

@@ -86,7 +86,7 @@ function Transaction (data) {
 
 Transaction.fromHex = function (op_return) {
   if (!Buffer.isBuffer(op_return)) {
-    op_return = new Buffer(op_return, 'hex')
+    op_return = Buffer.from(op_return, 'hex')
   }
   var decoder = encodingLookup[op_return[3]]
   var rawData = decoder.decode(op_return)
@@ -154,14 +154,14 @@ Transaction.prototype.setHash = function (torrentHash, sha2) {
       throw new Error('Cannot set hash: CID is missing');
     }
 
-    this.cid = !Buffer.isBuffer(torrentHash) ? new Buffer(torrentHash, 'hex') : torrentHash;
+    this.cid = !Buffer.isBuffer(torrentHash) ? Buffer.from(torrentHash, 'hex') : torrentHash;
   }
   else {
     if (!torrentHash) throw new Error('Can\'t set hashes without the torrent hash')
-    if (!Buffer.isBuffer(torrentHash)) torrentHash = new Buffer(torrentHash, 'hex')
+    if (!Buffer.isBuffer(torrentHash)) torrentHash = Buffer.from(torrentHash, 'hex')
     this.torrentHash = torrentHash
     if (sha2) {
-      if (!Buffer.isBuffer(sha2)) sha2 = new Buffer(sha2, 'hex')
+      if (!Buffer.isBuffer(sha2)) sha2 = Buffer.from(sha2, 'hex')
       this.sha2 = sha2
     }
   }

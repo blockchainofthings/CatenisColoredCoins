@@ -35,7 +35,7 @@ var createIdFromTxidIndex = function (txid, index, padding, divisibility) {
 }
 
 var createIdFromPreviousOutputScriptPubKey = function (previousOutputHex, padding, divisibility) {
-  var buffer = new Buffer(previousOutputHex, 'hex')
+  var buffer = Buffer.from(previousOutputHex, 'hex')
   debug('buffer = ', buffer)
   return hashAndBase58CheckEncode(buffer, padding, divisibility)
 }
@@ -119,8 +119,8 @@ var hashAndBase58CheckEncode = function (payloadToHash, padding, divisibility) {
   var hash256 = hash.sha256(payloadToHash)
   var hash160 = hash.ripemd160(hash256)
   debug('hash160 = ', hash160)
-  padding = new Buffer(padLeadingZeros(padding.toString(16)), 'hex')
-  divisibility = new Buffer(padLeadingZeros(divisibility.toString(16), POSTFIXBYTELENGTH), 'hex')
+  padding = Buffer.from(padLeadingZeros(padding.toString(16)), 'hex')
+  divisibility = Buffer.from(padLeadingZeros(divisibility.toString(16), POSTFIXBYTELENGTH), 'hex')
   var concatenation = Buffer.concat([padding, hash160, divisibility])
   return bs58check.encode(concatenation)
 }

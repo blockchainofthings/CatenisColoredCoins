@@ -1,18 +1,18 @@
 const C3_PROTOCOL = 0x4333;   // Catenis Colored Coins (C3) protocol
 const MULTISIG_KEY_DATA_SIZE = 32;  // Data size, in bytes, that can be stored per key in a multi-sig output
 var OP_CODES = [
-  new Buffer([0x00]), // wild-card to be defined
-  new Buffer([0x01]), // All Hashes in OP_RETURN - Pay-to-PubkeyHash
+  Buffer.from([0x00]), // wild-card to be defined
+  Buffer.from([0x01]), // All Hashes in OP_RETURN - Pay-to-PubkeyHash
                       // C3 protocol: whole CID in null data output
-  new Buffer([0x02]), // SHA2 in Pay-to-Script-Hash multi-sig output (1 out of 2)
+  Buffer.from([0x02]), // SHA2 in Pay-to-Script-Hash multi-sig output (1 out of 2)
                       // C3 protocol: start of CID in null data output, continuation in single key of multi-sig output (1 out of 2)
-  new Buffer([0x03]), // All Hashes in Pay-to-Script-Hash multi-sig outputs (1 out of 3)
+  Buffer.from([0x03]), // All Hashes in Pay-to-Script-Hash multi-sig outputs (1 out of 3)
                       // C3 protocol: start of CID in null data output, continuation in two keys of multi-sig output (1 out of 3)
-  new Buffer([0x04]), // Low security issue no SHA2 for torrent data. SHA1 is always inside OP_RETURN in this case.
+  Buffer.from([0x04]), // Low security issue no SHA2 for torrent data. SHA1 is always inside OP_RETURN in this case.
                       // C3 protocol: whole CID in single key of multi-sig output (1 out of 2) - Note: this should never happen since smallest size of CID is 34, which does not fit in a single multi-sig key
-  new Buffer([0x05]), // No rules, no torrent, no meta data ( no one may add rules in the future, anyone can add metadata )
+  Buffer.from([0x05]), // No rules, no torrent, no meta data ( no one may add rules in the future, anyone can add metadata )
                       // C3 protocol: whole CID in two keys of multi-sig output (1 out of 3)
-  new Buffer([0x06])  // No meta data (anyone can add rules and/or metadata  in the future)
+  Buffer.from([0x06])  // No meta data (anyone can add rules and/or metadata  in the future)
                       // C3 protocol: no metadata (no CID)
 ]
 var sffc = require('../sffc-encoder')
@@ -45,12 +45,12 @@ module.exports = {
     if (typeof data.protocol === 'undefined') throw new Error('Missing protocol')
     if (typeof data.version === 'undefined') throw new Error('Missing version')
     var opcode
-    var hash = new Buffer(0)
-    var protocol = new Buffer(padLeadingZeros(data.protocol.toString(16), 2), 'hex')
-    var version = new Buffer([data.version])
+    var hash = Buffer.alloc(0)
+    var protocol = Buffer.from(padLeadingZeros(data.protocol.toString(16), 2), 'hex')
+    var version = Buffer.from([data.version])
     var issueHeader = Buffer.concat([protocol, version])
     var amount = sffc.encode(data.amount)
-    var payments = new Buffer(0)
+    var payments = Buffer.alloc(0)
     if (data.payments) payments = paymentCodex.encodeBulk(data.payments)
     var issueFlagsByte = issueFlagsCodex.encode({divisibility: data.divisibility, lockStatus: data.lockStatus, aggregationPolicy: data.aggregationPolicy})
     var issueTail = Buffer.concat([amount, payments, issueFlagsByte])
@@ -156,7 +156,7 @@ module.exports = {
   decode: function (op_code_buffer) {
     var data = {}
     if (!Buffer.isBuffer(op_code_buffer)) {
-      op_code_buffer = new Buffer(op_code_buffer, 'hex')
+      op_code_buffer = Buffer.from(op_code_buffer, 'hex')
     }
     var byteSize = op_code_buffer.length
     var lastByte = op_code_buffer.slice(-1)

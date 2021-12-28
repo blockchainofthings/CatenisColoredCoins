@@ -102,7 +102,7 @@ var paymentEncode = require('cc-burn-payment-encoder')
 var consumer = require('buffer-consumer')
 
 var decode = paymentEncode.decode(consumer(code))
-var codeBuffer = new Buffer([0x82,0x76,0x0e,0x1b,0x48])
+var codeBuffer = Buffer.from([0x82,0x76,0x0e,0x1b,0x48])
 
 console.log(paymentEncode.decode(consumer(codeBuffer)))
 // Will print:

@@ -13,15 +13,15 @@ var toBuffer = function (val) {
   if (val.length % 2 == 1) {
     val = '0'+val
   }
-  return new Buffer(val, 'hex')
+  return Buffer.from(val, 'hex')
 }
 
 describe('80 byte OP_RETURN', function() {
 
   var code
   var decoded
-  var torrentHash = new Buffer('46b7e0d000d69330ac1caa48c6559763828762e1', 'hex')
-  var sha2 = new Buffer('03ffdf3d6790a21c5fc97a62fe1abc5f66922d7dee3725261ce02e86f078d190', 'hex')
+  var torrentHash = Buffer.from('46b7e0d000d69330ac1caa48c6559763828762e1', 'hex')
+  var sha2 = Buffer.from('03ffdf3d6790a21c5fc97a62fe1abc5f66922d7dee3725261ce02e86f078d190', 'hex')
   var data = {
     amount: 15,
     divisibility: 2,

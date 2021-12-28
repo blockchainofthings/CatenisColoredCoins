@@ -23,7 +23,7 @@ module.exports = {
       throw new Error('Output value is out of bounds')
     }
     var outputString = padLeadingZeros(output.toString(16), +range + 1)
-    var buf = new Buffer(outputString, 'hex')
+    var buf = Buffer.from(outputString, 'hex')
     if (skip) buf[0] = buf[0] | skipFlag
     if (range) buf[0] = buf[0] | rangeFlag
     if (percent) buf[0] = buf[0] | percentFlag
@@ -34,7 +34,7 @@ module.exports = {
   decode: function (consume) {
     var flagsBuffer = consume(1)[0]
     if (typeof flagsBuffer === 'undefined') throw new Error('No flags are found')
-    var output = new Buffer([flagsBuffer & (~flagMask)])
+    var output = Buffer.from([flagsBuffer & (~flagMask)])
     var flags = flagsBuffer & flagMask
     var skip = !!(flags & skipFlag)
     var range = !!(flags & rangeFlag)
@@ -47,7 +47,7 @@ module.exports = {
   },
 
   encodeBulk: function (paymentsArray) {
-    var payments = new Buffer(0)
+    var payments = Buffer.alloc(0)
     var amountOfPayments = paymentsArray.length
     for (var i = 0; i < amountOfPayments; i++) {
       var payment = paymentsArray[i]

@@ -23,7 +23,7 @@ module.exports = {
     result = result | aggregationPolicy
     result = result << 2
     result = padLeadingZeros(result.toString(16), 1)
-    return new Buffer(result, 'hex')
+    return Buffer.from(result, 'hex')
   },
 
   decode: function (consume) {

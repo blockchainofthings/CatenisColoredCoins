@@ -73,7 +73,7 @@ module.exports = {
     if (number < 0) throw new Error('Number is out of bounds')
     if (number > Number.MAX_SAFE_INTEGER) throw new Error('Number is out of bounds')
     if (number < 32) {
-      buf = new Buffer([number])
+      buf = Buffer.from([number])
       return buf
     }
     var floatingNumberArray = intToFloatArray(number)
@@ -86,7 +86,7 @@ module.exports = {
     }
     var shiftedNumber = floatingNumberArray[0] * Math.pow(2, encodingObject.exponent)
     var numberString = padLeadingZeros(shiftedNumber.toString(16), encodingObject.byteSize)
-    buf = new Buffer(numberString, 'hex')
+    buf = Buffer.from(numberString, 'hex')
     buf[0] = buf[0] | encodingObject.flag
     buf[buf.length - 1] = buf[buf.length - 1] | floatingNumberArray[1]
 
@@ -99,7 +99,7 @@ module.exports = {
     if (flag === 0) return flagByte
     if (flag === 0xe0) flag = 0xc0
     var encodingObject = flagLookup[flag]
-    var headOfNumber = new Buffer([flagByte & (~flag)])
+    var headOfNumber = Buffer.from([flagByte & (~flag)])
     var tailOfNumber = consume(encodingObject.byteSize - 1)
     var fullNumber = Buffer.concat([headOfNumber, tailOfNumber])
     var number = parseInt(fullNumber.toString('hex'), 16)

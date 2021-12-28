@@ -42,7 +42,7 @@ module.exports = {
   },
 
   encodeBulk: function (paymentsArray, isBurn) {
-    var payments = new Buffer(0)
+    var payments = Buffer.alloc(0)
     var amountOfPayments = paymentsArray.length
     for (var i = 0; i < amountOfPayments; i++) {
       var payment = paymentsArray[i]

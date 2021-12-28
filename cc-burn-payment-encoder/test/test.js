@@ -43,10 +43,10 @@ describe('Payment Decode Encode', function () {
     var testCase3 = paymentEncode.encode({skip: false, percent: true, amount: 25, burn: true})
     var testCase4 = paymentEncode.encode({skip: true, percent: true, amount: 10, burn: true})
 
-    assert.deepEqual(testCase1, new Buffer([0x1f, 0x0d]))
-    assert.deepEqual(testCase2, new Buffer([0x9f, 0x27, 0xb0]))
-    assert.deepEqual(testCase3, new Buffer([0x3f, 0x19]))
-    assert.deepEqual(testCase4, new Buffer([0xbf, 0x0a]))
+    assert.deepEqual(testCase1, Buffer.from([0x1f, 0x0d]))
+    assert.deepEqual(testCase2, Buffer.from([0x9f, 0x27, 0xb0]))
+    assert.deepEqual(testCase3, Buffer.from([0x3f, 0x19]))
+    assert.deepEqual(testCase4, Buffer.from([0xbf, 0x0a]))
     done()
   })
 

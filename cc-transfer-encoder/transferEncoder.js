@@ -4,31 +4,31 @@ var TYPE_MASK = 0xf0
 var TRANSFER_MASK = 0x10
 var BURN_MASK = 0x20
 var TRANSFER_OP_CODES = [
-  new Buffer([0x10]), // All Hashes in OP_RETURN
+  Buffer.from([0x10]), // All Hashes in OP_RETURN
                       // C3 protocol: whole CID in null data output
-  new Buffer([0x11]), // SHA2 in Pay-to-Script-Hash multi-sig output (1 out of 2)
+  Buffer.from([0x11]), // SHA2 in Pay-to-Script-Hash multi-sig output (1 out of 2)
                       // C3 protocol: start of CID in null data output, continuation in single key of multi-sig output (1 out of 2)
-  new Buffer([0x12]), // All Hashes in Pay-to-Script-Hash multi-sig outputs (1 out of 3)
+  Buffer.from([0x12]), // All Hashes in Pay-to-Script-Hash multi-sig outputs (1 out of 3)
                       // C3 protocol: start of CID in null data output, continuation in two keys of multi-sig output (1 out of 3)
-  new Buffer([0x13]), // Low security transaction no SHA2 for torrent data. SHA1 is always inside OP_RETURN in this case.
+  Buffer.from([0x13]), // Low security transaction no SHA2 for torrent data. SHA1 is always inside OP_RETURN in this case.
                       // C3 protocol: whole CID in single key of multi-sig output (1 out of 2) - Note: this should never happen since smallest size of CID is 34, which does not fit in a single multi-sig key
-  new Buffer([0x14]), // Low security transaction no SHA2 for torrent data. SHA1 is always inside OP_RETURN in this case. also no rules inside the metadata (if there are any they will be in ignored)
+  Buffer.from([0x14]), // Low security transaction no SHA2 for torrent data. SHA1 is always inside OP_RETURN in this case. also no rules inside the metadata (if there are any they will be in ignored)
                       // C3 protocol: whole CID in two keys of multi-sig output (1 out of 3)
-  new Buffer([0x15])  // No metadata or rules (no SHA1 or SHA2)
+  Buffer.from([0x15])  // No metadata or rules (no SHA1 or SHA2)
                       // C3 protocol: no metadata (no CID)
 ]
 var BURN_OP_CODES = [
-  new Buffer([0x20]), // All Hashes in OP_RETURN
+  Buffer.from([0x20]), // All Hashes in OP_RETURN
                       // C3 protocol: whole CID in null data output
-  new Buffer([0x21]), // SHA2 in Pay-to-Script-Hash multi-sig output (1 out of 2)
+  Buffer.from([0x21]), // SHA2 in Pay-to-Script-Hash multi-sig output (1 out of 2)
                       // C3 protocol: start of CID in null data output, continuation in single key of multi-sig output (1 out of 2)
-  new Buffer([0x22]), // All Hashes in Pay-to-Script-Hash multi-sig outputs (1 out of 3)
+  Buffer.from([0x22]), // All Hashes in Pay-to-Script-Hash multi-sig outputs (1 out of 3)
                       // C3 protocol: start of CID in null data output, continuation in two keys of multi-sig output (1 out of 3)
-  new Buffer([0x23]), // Low security transaction no SHA2 for torrent data. SHA1 is always inside OP_RETURN in this case.
+  Buffer.from([0x23]), // Low security transaction no SHA2 for torrent data. SHA1 is always inside OP_RETURN in this case.
                       // C3 protocol: whole CID in single key of multi-sig output (1 out of 2) - Note: this should never happen since smallest size of CID is 34, which does not fit in a single multi-sig key
-  new Buffer([0x24]), // Low security transaction no SHA2 for torrent data. SHA1 is always inside OP_RETURN in this case. also no rules inside the metadata (if there are any they will be in ignored)
+  Buffer.from([0x24]), // Low security transaction no SHA2 for torrent data. SHA1 is always inside OP_RETURN in this case. also no rules inside the metadata (if there are any they will be in ignored)
                       // C3 protocol: whole CID in two keys of multi-sig output (1 out of 3)
-  new Buffer([0x25])  // No metadata or rules (no SHA1 or SHA2)
+  Buffer.from([0x25])  // No metadata or rules (no SHA1 or SHA2)
                       // C3 protocol: no metadata (no CID)
 ]
 
@@ -54,9 +54,9 @@ module.exports = {
     var opcode
     var OP_CODES = data.type === 'burn' ? BURN_OP_CODES : TRANSFER_OP_CODES
     var paymentEncoder = data.type === 'burn' ? burnPaymentEncoder : transferPaymentEncoder
-    var hash = new Buffer(0)
-    var protocol = new Buffer(padLeadingZeros(data.protocol.toString(16), 2), 'hex')
-    var version = new Buffer([data.version])
+    var hash = Buffer.alloc(0)
+    var protocol = Buffer.from(padLeadingZeros(data.protocol.toString(16), 2), 'hex')
+    var version = Buffer.from([data.version])
     var transferHeader = Buffer.concat([protocol, version])
     var payments = paymentEncoder.encodeBulk(data.payments)
     var issueByteSize = transferHeader.length + payments.length + 1

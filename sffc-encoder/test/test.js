@@ -39,7 +39,7 @@ describe('One byte encoding', function () {
     var labz_code
     for (var i = 0; i < 32; i++) {
       labz_code = balz.encode(i)
-      var buf = new Buffer([i])
+      var buf = Buffer.from([i])
       assert.equal(labz_code.length, 1, 'Wrong encoding length')
       assert.equal(labz_code.toString('hex'), buf.toString('hex'), 'Wrong encoding')
     }
