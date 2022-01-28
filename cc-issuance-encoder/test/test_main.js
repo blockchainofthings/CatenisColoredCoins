@@ -402,8 +402,6 @@ describe('80 byte OP_RETURN', function() {
     it('Issuance OP_CODE 0x03 - Start of CID in null data output, continuation in two keys of multi-sig output (1 out of 3)', function (done) {
       this.timeout(0);
 
-      //data2.amount = 31;  // Change amount back to occupy a single byte
-
       // Reset payments
       data2.payments = [];
       for (let i = 0 ; i < 36 ; i++) {
@@ -450,8 +448,6 @@ describe('80 byte OP_RETURN', function() {
       // Simulate a shorter CID (which in practice should never happen)
       data2.cid = cid.slice(0, 31);
 
-      //data2.amount = 31;  // Change amount back to occupy a single byte
-
       // Reset payments
       data2.payments = [];
       for (let i = 0 ; i < 37 ; i++) {
@@ -493,8 +489,6 @@ describe('80 byte OP_RETURN', function() {
 
       // Reset CID back to normal
       data2.cid = cid;
-
-      //data2.amount = 31;  // Change amount back to occupy a single byte
 
       // Reset payments
       data2.payments = [];
@@ -553,6 +547,17 @@ describe('80 byte OP_RETURN', function() {
       }, new Error('CID too large to fit in transaction'));
 
       done();
+    })
+
+    it('should fail if issuing non-fungible token with divisibility different than zero', function () {
+      data2.divisibility = 2;
+      data2.aggregationPolicy = 'nonFungible';
+      delete data2.torrentHash;
+      delete data2.sha2;
+
+      assert.throws(() => {
+        ccEncoding.encode(data2, 80);
+      }, new Error('Inconsistent divisibility for non-fungible'));
     })
   })
 })

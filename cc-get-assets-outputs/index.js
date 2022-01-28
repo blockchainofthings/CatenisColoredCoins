@@ -2,20 +2,29 @@ var assetIdencoder = require('../cc-assetid-encoder')
 var debug = require('debug')('../cc-get-assets-outputs')
 var _ = require('lodash')
 
+const C3_PROTOCOL = 0x4333;   // Catenis Colored Coins (C3) protocol
+
 module.exports = function (raw_transaction, network) {
   var transaction_data = JSON.parse(JSON.stringify(raw_transaction))
   var ccdata = transaction_data.ccdata[0]
   var assets = []
   if (ccdata.type === 'issuance') {
-    transaction_data.vin[0].assets = transaction_data.vin[0].assets || []
-    transaction_data.vin[0].assets.unshift({
+    const assetInfo = {
       assetId: assetIdencoder(transaction_data, network),
       amount: ccdata.amount,
       issueTxid: transaction_data.txid,
       divisibility: ccdata.divisibility,
       lockStatus: ccdata.lockStatus,
       aggregationPolicy: ccdata.aggregationPolicy
-    })
+    };
+    if (ccdata.protocol === C3_PROTOCOL && assetInfo.aggregationPolicy === 'nonFungible') {
+      // Issuing non-fungible tokens. Get IDs for the new tokens (note that the amount
+      //  designates the number of tokens to issue), and reset the token index
+      assetInfo.tokenIds = assetIdencoder(transaction_data, network, true);
+      assetInfo.tokenIdx = 0;
+    }
+    transaction_data.vin[0].assets = transaction_data.vin[0].assets || []
+    transaction_data.vin[0].assets.unshift(assetInfo)
   }
 
   var payments = ccdata.payments
@@ -87,14 +96,32 @@ function transfer (assets, payments, transaction_data) {
         debug('aggregating ' + currentAmount + ' of asset ' + currentAsset.assetId + ' from input #' + currentInputIndex + ' asset #' + currentAssetIndex + ' to output #' + payment.output)
         assets[payment.output][assets[payment.output].length - 1].amount += currentAmount
       } else {
-        assets[payment.output].push({
+        const assetInfo = {
           assetId: currentAsset.assetId,
           amount: currentAmount,
           issueTxid: currentAsset.issueTxid,
           divisibility: currentAsset.divisibility,
           lockStatus: currentAsset.lockStatus,
           aggregationPolicy: currentAsset.aggregationPolicy
-        })
+        };
+
+        if (currentAsset.tokenIds) {
+          // Issuing non-fungible tokens. Amount designate number of tokens to issue.
+          //  So transfer each token separately
+          assetInfo.amount = 1;
+          for (let counter = currentAmount; counter > 0; counter--) {
+            assets[payment.output].push({
+              ...assetInfo,
+              tokenId: currentAsset.tokenIds[currentAsset.tokenIdx++]
+            });
+          }
+        }
+        else {
+          if (currentAsset.tokenId) {
+            assetInfo.tokenId = currentAsset.tokenId;
+          }
+          assets[payment.output].push(assetInfo);
+        }
       }
     }
     currentAsset.amount -= currentAmount
@@ -161,14 +188,33 @@ function transferToLastOutput (assets, inputs, lastOutputIndex) {
       if (typeof assetsIndexes[asset.assetId] === 'undefined') {
         assetsIndexes[asset.assetId] = lastOutputAssets.length
       }
-      lastOutputAssets.push({
+
+      const assetInfo = {
         assetId: asset.assetId,
         amount: asset.amount,
         issueTxid: asset.issueTxid,
         divisibility: asset.divisibility,
         lockStatus: asset.lockStatus,
         aggregationPolicy: asset.aggregationPolicy
-      })
+      };
+
+      if (asset.tokenIds) {
+        // Issuing non-fungible tokens. Amount designate number of tokens to issue.
+        //  So transfer each token separately
+        assetInfo.amount = 1;
+        for (let counter = asset.amount; counter > 0; counter--) {
+          lastOutputAssets.push({
+            ...assetInfo,
+            tokenId: asset.tokenIds[asset.tokenIdx++]
+          });
+        }
+      }
+      else {
+        if (asset.tokenId) {
+          assetInfo.tokenId = asset.tokenId;
+        }
+        lastOutputAssets.push(assetInfo);
+      }
     }
   })
 

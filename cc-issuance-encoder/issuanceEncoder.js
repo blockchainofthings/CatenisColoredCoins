@@ -44,6 +44,9 @@ module.exports = {
     if (typeof data.aggregationPolicy === 'undefined') throw new Error('Missing aggregationPolicy')
     if (typeof data.protocol === 'undefined') throw new Error('Missing protocol')
     if (typeof data.version === 'undefined') throw new Error('Missing version')
+    if (data.protocol === C3_PROTOCOL && data.aggregationPolicy === 'nonFungible' && data.divisibility !== 0) {
+      throw new Error('Inconsistent divisibility for non-fungible');
+    }
     var opcode
     var hash = Buffer.alloc(0)
     var protocol = Buffer.from(padLeadingZeros(data.protocol.toString(16), 2), 'hex')
@@ -52,7 +55,10 @@ module.exports = {
     var amount = sffc.encode(data.amount)
     var payments = Buffer.alloc(0)
     if (data.payments) payments = paymentCodex.encodeBulk(data.payments)
-    var issueFlagsByte = issueFlagsCodex.encode({divisibility: data.divisibility, lockStatus: data.lockStatus, aggregationPolicy: data.aggregationPolicy})
+    var issueFlagsByte = issueFlagsCodex.encode(
+        {divisibility: data.divisibility, lockStatus: data.lockStatus, aggregationPolicy: data.aggregationPolicy},
+        data.protocol
+    )
     var issueTail = Buffer.concat([amount, payments, issueFlagsByte])
     var issueByteSize = issueHeader.length + issueTail.length + 1
 
@@ -158,14 +164,18 @@ module.exports = {
     if (!Buffer.isBuffer(op_code_buffer)) {
       op_code_buffer = Buffer.from(op_code_buffer, 'hex')
     }
-    var byteSize = op_code_buffer.length
+
+    // Exclude last byte (with issuance flags)
+    var consume = consumer(op_code_buffer.slice(0, op_code_buffer.length - 1))
+    data.protocol = parseInt(consume(2).toString('hex'), 16)
+
+    // Process issuance flags separately
     var lastByte = op_code_buffer.slice(-1)
-    var issueTail = issueFlagsCodex.decode(consumer(lastByte))
+    var issueTail = issueFlagsCodex.decode(consumer(lastByte), data.protocol)
     data.divisibility = issueTail.divisibility
     data.lockStatus = issueTail.lockStatus
     data.aggregationPolicy = issueTail.aggregationPolicy
-    var consume = consumer(op_code_buffer.slice(0, byteSize - 1))
-    data.protocol = parseInt(consume(2).toString('hex'), 16)
+
     data.version = parseInt(consume(1).toString('hex'), 16)
     data.multiSig = []
     var opcode = consume(1)

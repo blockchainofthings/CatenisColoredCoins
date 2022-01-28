@@ -4,6 +4,8 @@ var assetIdEncoder = require(path.join(__dirname, '/../assetIdEncoder'))
 var assert = require('assert')
 var bitcoin = require('bitcoinjs-lib')
 
+const C3_PROTOCOL = 0x4333;   // Catenis Colored Coins (C3) protocol
+
 describe('1st input pubkeyhash', function () {
   describe('locked asset ID', function () {
     var assetId
@@ -49,6 +51,69 @@ describe('1st input pubkeyhash', function () {
       console.log(assetId)
       done()
     })
+
+    it('should return correct locked non-fungible asset ID', function (done) {
+      // Change protocol
+      bitcoinTransaction.ccdata[0].protocol = C3_PROTOCOL;
+
+      bitcoinTransaction.ccdata[0].aggregationPolicy = 'nonFungible'
+      assetId = assetIdEncoder(bitcoinTransaction, bitcoin.networks.testnet)
+      assert.equal(assetId, 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZceqbU5')
+      console.log(assetId)
+
+      // Reset protocol
+      delete bitcoinTransaction.ccdata[0].protocol;
+
+      done()
+    })
+
+    describe('non-fungible token IDs', function () {
+      let ids;
+
+      it ('should not return anything if trying to generate token IDs (tokenIds parameter is set) for a regular asset', function (done) {
+        bitcoinTransaction.ccdata[0].amount = 3
+        bitcoinTransaction.ccdata[0].divisibility = 0
+        bitcoinTransaction.ccdata[0].aggregationPolicy = 'aggregatable'
+
+        ids = assetIdEncoder(bitcoinTransaction, bitcoin.networks.testnet, true)
+        assert.equal(ids, undefined)
+        done()
+      })
+
+      it ('should generate asset ID if tokenIds parameter not set', function (done) {
+        // Change protocol
+        bitcoinTransaction.ccdata[0].protocol = C3_PROTOCOL;
+
+        bitcoinTransaction.ccdata[0].aggregationPolicy = 'nonFungible'
+
+        ids = assetIdEncoder(bitcoinTransaction, bitcoin.networks.testnet)
+        assert.equal(ids, 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v')
+        console.log(ids)
+
+        // Reset protocol
+        delete bitcoinTransaction.ccdata[0].protocol;
+
+        done()
+      })
+
+      it ('should generate correct token IDs', function (done) {
+        // Change protocol
+        bitcoinTransaction.ccdata[0].protocol = C3_PROTOCOL;
+
+        ids = assetIdEncoder(bitcoinTransaction, bitcoin.networks.testnet, true)
+        assert.deepEqual(ids, [
+          'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1K4DLji',
+          'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1Tuiw2M',
+          'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1bFs2is'
+        ])
+        console.log(ids)
+
+        // Reset protocol
+        delete bitcoinTransaction.ccdata[0].protocol;
+
+        done()
+      })
+    })
   })
 
   describe('unlocked asset ID', function () {
@@ -60,6 +125,8 @@ describe('1st input pubkeyhash', function () {
         'divisibility': 3
       }],
       'vin': [{
+        'txid': '0f45f38a8bcd8331877267e0f3f5f8a4b3c716165e40db4eee34d52759ad954f',
+        'vout': 2,
         'scriptSig': {
           'asm': '3045022100daf8f8d65ea908a28d90f700dc932ecb3b68f402b04ba92f987e8abd7080fcad02205ce81b698b8013b86813c9edafc9e79997610626c9dd1bfb49f60abee9daa43801 029b622e5f0f87f2be9f23c4d82f818a73e258a11c26f01f73c8b595042507a574'
         }
@@ -95,6 +162,48 @@ describe('1st input pubkeyhash', function () {
       assert.equal(assetId, 'Ud9d5N9NVkLfNCCc3ExquxPQUbimDEV3ctXUKS')
       console.log(assetId)
       done()
+    })
+
+    it('should return correct unlocked non-fungible asset ID', function (done) {
+      // Change protocol
+      bitcoinTransaction.ccdata[0].protocol = C3_PROTOCOL;
+
+      bitcoinTransaction.ccdata[0].aggregationPolicy = 'nonFungible'
+      assetId = assetIdEncoder(bitcoinTransaction, bitcoin.networks.testnet)
+      assert.equal(assetId, 'Un4zg8Ku1CQvPca9y6wJSPWdV2xkM5BWCnppoD')
+      console.log(assetId)
+
+      // Reset protocol
+      delete bitcoinTransaction.ccdata[0].protocol;
+
+      done()
+    })
+
+    describe('non-fungible token IDs', function () {
+      let ids;
+
+      it ('should generate correct token IDs', function (done) {
+        // Change protocol
+        bitcoinTransaction.ccdata[0].protocol = C3_PROTOCOL;
+
+        // Adjust transaction for non-fungible tokens
+        bitcoinTransaction.ccdata[0].amount = 3
+        bitcoinTransaction.ccdata[0].divisibility = 0
+        bitcoinTransaction.ccdata[0].aggregationPolicy = 'nonFungible'
+
+        ids = assetIdEncoder(bitcoinTransaction, bitcoin.networks.testnet, true)
+        assert.deepEqual(ids, [
+          'Tk97fk8Rg27toQW68faxhnDuYeFEoK6GNnWDAH',
+          'Tk97fk8Rg27toQW68faxhnDuYeFEoK6GZ1AedZ',
+          'Tk97fk8Rg27toQW68faxhnDuYeFEoK6GcCUm9A'
+        ])
+        console.log(ids)
+
+        // Reset protocol
+        delete bitcoinTransaction.ccdata[0].protocol;
+
+        done()
+      })
     })
   })
 })
@@ -134,6 +243,21 @@ describe('1st input scripthash', function () {
       assetId = assetIdEncoder(bitcoinTransaction, bitcoin.networks.testnet)
       assert.equal(assetId, 'Ld7CtQsq1dSsN54B8i9j1nPtMHCiYKDXDZ6YBq')
       console.log(assetId)
+      done()
+    })
+
+    it('should return correct locked non-fungible asset ID', function (done) {
+      // Change protocol
+      bitcoinTransaction.ccdata[0].protocol = C3_PROTOCOL;
+
+      bitcoinTransaction.ccdata[0].aggregationPolicy = 'nonFungible'
+      assetId = assetIdEncoder(bitcoinTransaction, bitcoin.networks.testnet)
+      assert.equal(assetId, 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZceqbU5')
+      console.log(assetId)
+
+      // Reset protocol
+      delete bitcoinTransaction.ccdata[0].protocol;
+
       done()
     })
   })
@@ -181,6 +305,21 @@ describe('1st input scripthash', function () {
       assetId = assetIdEncoder(bitcoinTransaction, bitcoin.networks.testnet)
       assert.equal(assetId, 'UdByo68dXjKgc5Zd7BWHznku2aQtyBFaXVSxU7')
       console.log(assetId)
+      done()
+    })
+
+    it('should return correct unlocked non-fungible asset ID', function (done) {
+      // Change protocol
+      bitcoinTransaction.ccdata[0].protocol = C3_PROTOCOL;
+
+      bitcoinTransaction.ccdata[0].aggregationPolicy = 'nonFungible'
+      assetId = assetIdEncoder(bitcoinTransaction, bitcoin.networks.testnet)
+      assert.equal(assetId, 'Un7MPrKA3BPwdVwB33UkXDt831et71x34L4eCM')
+      console.log(assetId)
+
+      // Reset protocol
+      delete bitcoinTransaction.ccdata[0].protocol;
+
       done()
     })
   })
@@ -231,6 +370,21 @@ describe('1st input witnesspubkeyhash', function () {
       assetId = assetIdEncoder(bitcoinTransaction, bitcoin.networks.testnet)
       assert.equal(assetId, 'UdDdoKxH67aLcEUoJ1hcxRoi8kJrbssCL8qteS')
       console.log(assetId)
+      done()
+    })
+
+    it('should return correct unlocked non-fungible asset ID', function (done) {
+      // Change protocol
+      bitcoinTransaction.ccdata[0].protocol = C3_PROTOCOL;
+
+      bitcoinTransaction.ccdata[0].aggregationPolicy = 'nonFungible'
+      assetId = assetIdEncoder(bitcoinTransaction, bitcoin.networks.testnet)
+      assert.equal(assetId, 'Un91Q68obZebderMDsg5Urvw9BYqjiZf1rBWwS')
+      console.log(assetId)
+
+      // Reset protocol
+      delete bitcoinTransaction.ccdata[0].protocol;
+
       done()
     })
   })
@@ -285,6 +439,21 @@ describe('1st input witnessscripthash', function () {
       console.log(assetId)
       done()
     })
+
+    it('should return correct unlocked non-fungible asset ID', function (done) {
+      // Change protocol
+      bitcoinTransaction.ccdata[0].protocol = C3_PROTOCOL;
+
+      bitcoinTransaction.ccdata[0].aggregationPolicy = 'nonFungible'
+      assetId = assetIdEncoder(bitcoinTransaction, bitcoin.networks.testnet)
+      assert.equal(assetId, 'UnAoX45L9W1DJKPeuYivhzZH6p4Lm2mREYQvs9')
+      console.log(assetId)
+
+      // Reset protocol
+      delete bitcoinTransaction.ccdata[0].protocol;
+
+      done()
+    })
   })
 })
 
@@ -323,6 +492,21 @@ describe('1st input multisig, create asset ID from previousOutput.hex', function
     assetId = assetIdEncoder(bitcoinTransaction, bitcoin.networks.testnet)
     assert.equal(assetId, 'UdFVstuJv4szzC54JViq3AYHyVr4cBEEEdCFyB')
     console.log(assetId)
+    done()
+  })
+
+  it('should return correct unlocked non-fungible asset ID', function (done) {
+    // Change protocol
+    bitcoinTransaction.ccdata[0].protocol = C3_PROTOCOL;
+
+    bitcoinTransaction.ccdata[0].aggregationPolicy = 'nonFungible'
+    assetId = assetIdEncoder(bitcoinTransaction, bitcoin.networks.testnet)
+    assert.equal(assetId, 'UnAsUf5qRWxG1cScEMhHZbfWyw63k1vgscSRTi')
+    console.log(assetId)
+
+    // Reset protocol
+    delete bitcoinTransaction.ccdata[0].protocol;
+
     done()
   })
 })
@@ -370,6 +554,21 @@ describe('create unlocked assetID from address', function () {
     console.log(assetId)
     done()
   })
+
+  it('should return correct unlocked non-fungible asset ID', function (done) {
+    // Change protocol
+    bitcoinTransaction.ccdata[0].protocol = C3_PROTOCOL;
+
+    bitcoinTransaction.ccdata[0].aggregationPolicy = 'nonFungible'
+    assetId = assetIdEncoder(bitcoinTransaction, bitcoin.networks.testnet)
+    assert.equal(assetId, 'Un4zg8Ku1CQvPca9y6wJSPWdV2xkM5BWCnppoD')
+    console.log(assetId)
+
+    // Reset protocol
+    delete bitcoinTransaction.ccdata[0].protocol;
+
+    done()
+  })
 })
 
 describe('create unlocked assetID from pay-to-scripthash address', function () {
@@ -413,6 +612,21 @@ describe('create unlocked assetID from pay-to-scripthash address', function () {
     assetId = assetIdEncoder(bitcoinTransaction, bitcoin.networks.testnet)
     assert.equal(assetId, 'UdDdbshZt5xPAWwYUj1ci1nTRbke4WeMseyejd')
     console.log(assetId)
+    done()
+  })
+
+  it('should return correct unlocked non-fungible asset ID', function (done) {
+    // Change protocol
+    bitcoinTransaction.ccdata[0].protocol = C3_PROTOCOL;
+
+    bitcoinTransaction.ccdata[0].aggregationPolicy = 'nonFungible'
+    assetId = assetIdEncoder(bitcoinTransaction, bitcoin.networks.testnet)
+    assert.equal(assetId, 'Un91Cdt6PY2eBwK6Qaz5ESugS2zdCMLpUmAu32')
+    console.log(assetId)
+
+    // Reset protocol
+    delete bitcoinTransaction.ccdata[0].protocol;
+
     done()
   })
 })
@@ -460,6 +674,21 @@ describe('create unlocked assetID from native pay-to-witness-scripthash address'
     console.log(assetId)
     done()
   })
+
+  it('should return correct unlocked non-fungible asset ID', function (done) {
+    // Change protocol
+    bitcoinTransaction.ccdata[0].protocol = C3_PROTOCOL;
+
+    bitcoinTransaction.ccdata[0].aggregationPolicy = 'nonFungible'
+    assetId = assetIdEncoder(bitcoinTransaction, bitcoin.networks.testnet)
+    assert.equal(assetId, 'UnAoX45L9W1DJKPeuYivhzZH6p4Lm2mREYQvs9')
+    console.log(assetId)
+
+    // Reset protocol
+    delete bitcoinTransaction.ccdata[0].protocol;
+
+    done()
+  })
 })
 
 describe('create unlocked assetID from native pay-to-witness-pubkeyhash address', function () {
@@ -503,6 +732,21 @@ describe('create unlocked assetID from native pay-to-witness-pubkeyhash address'
     assetId = assetIdEncoder(bitcoinTransaction, bitcoin.networks.testnet)
     assert.equal(assetId, 'UdDdoKxH67aLcEUoJ1hcxRoi8kJrbssCL8qteS')
     console.log(assetId)
+    done()
+  })
+
+  it('should return correct unlocked non-fungible asset ID', function (done) {
+    // Change protocol
+    bitcoinTransaction.ccdata[0].protocol = C3_PROTOCOL;
+
+    bitcoinTransaction.ccdata[0].aggregationPolicy = 'nonFungible'
+    assetId = assetIdEncoder(bitcoinTransaction, bitcoin.networks.testnet)
+    assert.equal(assetId, 'Un91Q68obZebderMDsg5Urvw9BYqjiZf1rBWwS')
+    console.log(assetId)
+
+    // Reset protocol
+    delete bitcoinTransaction.ccdata[0].protocol;
+
     done()
   })
 })
@@ -550,6 +794,21 @@ describe('create assetID from scriptSig.hex', function () {
     assetId = assetIdEncoder(bitcoinTransaction, bitcoin.networks.testnet)
     assert.equal(assetId, 'UdDszTzN2NV4frsfVeXQKDiTZMbRvMqDfK6KF4')
     console.log(assetId)
+    done()
+  })
+
+  it('should return correct unlocked non-fungible asset ID', function (done) {
+    // Change protocol
+    bitcoinTransaction.ccdata[0].protocol = C3_PROTOCOL;
+
+    bitcoinTransaction.ccdata[0].aggregationPolicy = 'nonFungible'
+    assetId = assetIdEncoder(bitcoinTransaction, bitcoin.networks.testnet)
+    assert.equal(assetId, 'Un9FbEAtXpZKhHFDRWVrqeqgZnqR4CXgF7nBXq')
+    console.log(assetId)
+
+    // Reset protocol
+    delete bitcoinTransaction.ccdata[0].protocol;
+
     done()
   })
 })
