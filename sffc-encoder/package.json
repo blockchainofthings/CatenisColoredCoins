@@ -1,6 +1,6 @@
 {
   "name": "sffc-encoder",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Encode/decode numbers to and from SFFC encoding format",
   "main": "sffcEncoder.js",
   "directories": {
