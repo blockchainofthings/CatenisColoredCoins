@@ -1701,7 +1701,217 @@ describe('Transfer of non-fungible tokens', function () {
     done();
   })
 
-  it('should overflow trying to transfer multiple tokens (from a single input) to a single output (amount > 1)', function (done) {
+  it('should transfer multiple tokens (from a single input) with a single payments entry', function (done) {
+    transferTx = {
+      'vin': [
+        {
+          assets: [
+            {
+              assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+              amount: 1,
+              issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+              lockStatus: true,
+              divisibility: 0,
+              aggregationPolicy: 'nonFungible',
+              tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1K4DLji'
+            },
+            {
+              assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+              amount: 1,
+              issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+              lockStatus: true,
+              divisibility: 0,
+              aggregationPolicy: 'nonFungible',
+              tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1Tuiw2M'
+            },
+            {
+              assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+              amount: 1,
+              issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+              lockStatus: true,
+              divisibility: 0,
+              aggregationPolicy: 'nonFungible',
+              tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1bFs2is'
+            }
+          ]
+        }
+      ],
+      'vout': [{}, {}, {}],
+      'ccdata': [
+        {
+          'payments': [
+            {
+              'input': 0,
+              'amount': 3,
+              'output': 0,
+              'range': false,
+              'percent': false
+            }
+          ],
+          'protocol': C3_PROTOCOL,
+          'version': 2,
+          'type': 'transfer'
+        }
+      ],
+      txid: '60e27611871954dae4e4e53570712b73fcfcae08b30d50e9e3d02f63aa444bff'
+    };
+
+    const res = get_assets_outputs(transferTx, bitcoin.networks.testnet)
+    console.log(JSON.stringify(res, null, 2))
+    assert.deepEqual(res, [
+      [
+        {
+          assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+          amount: 1,
+          issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+          lockStatus: true,
+          divisibility: 0,
+          aggregationPolicy: 'nonFungible',
+          tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1K4DLji'
+        },
+        {
+          assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+          amount: 1,
+          issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+          lockStatus: true,
+          divisibility: 0,
+          aggregationPolicy: 'nonFungible',
+          tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1Tuiw2M'
+        },
+        {
+          assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+          amount: 1,
+          issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+          lockStatus: true,
+          divisibility: 0,
+          aggregationPolicy: 'nonFungible',
+          tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1bFs2is'
+        }
+      ],
+      ,   // Empty array entry
+      []
+    ]);
+
+    done();
+  })
+
+  it('should transfer multiple tokens (from more than one input) with a single payments entry', function (done) {
+    transferTx = {
+      'vin': [
+        {
+          assets: [
+            {
+              assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+              amount: 1,
+              issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+              lockStatus: true,
+              divisibility: 0,
+              aggregationPolicy: 'nonFungible',
+              tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1K4DLji'
+            },
+            {
+              assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+              amount: 1,
+              issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+              lockStatus: true,
+              divisibility: 0,
+              aggregationPolicy: 'nonFungible',
+              tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1Tuiw2M'
+            },
+            {
+              assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+              amount: 1,
+              issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+              lockStatus: true,
+              divisibility: 0,
+              aggregationPolicy: 'nonFungible',
+              tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1bFs2is'
+            }
+          ]
+        },
+        {
+          assets: [
+            {
+              assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+              amount: 1,
+              issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+              lockStatus: true,
+              divisibility: 0,
+              aggregationPolicy: 'nonFungible',
+              tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1fYfiE1'
+            }
+          ]
+        }
+      ],
+      'vout': [{}, {}, {}],
+      'ccdata': [
+        {
+          'payments': [
+            {
+              'input': 0,
+              'amount': 4,
+              'output': 0,
+              'range': false,
+              'percent': false
+            }
+          ],
+          'protocol': C3_PROTOCOL,
+          'version': 2,
+          'type': 'transfer'
+        }
+      ],
+      txid: '60e27611871954dae4e4e53570712b73fcfcae08b30d50e9e3d02f63aa444bff'
+    };
+
+    const res = get_assets_outputs(transferTx, bitcoin.networks.testnet)
+    console.log(JSON.stringify(res, null, 2))
+    assert.deepEqual(res, [
+      [
+        {
+          assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+          amount: 1,
+          issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+          lockStatus: true,
+          divisibility: 0,
+          aggregationPolicy: 'nonFungible',
+          tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1K4DLji'
+        },
+        {
+          assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+          amount: 1,
+          issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+          lockStatus: true,
+          divisibility: 0,
+          aggregationPolicy: 'nonFungible',
+          tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1Tuiw2M'
+        },
+        {
+          assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+          amount: 1,
+          issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+          lockStatus: true,
+          divisibility: 0,
+          aggregationPolicy: 'nonFungible',
+          tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1bFs2is'
+        },
+        {
+          assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+          amount: 1,
+          issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+          lockStatus: true,
+          divisibility: 0,
+          aggregationPolicy: 'nonFungible',
+          tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1fYfiE1'
+        }
+      ],
+      ,   // Empty array entry
+      []
+    ]);
+
+    done();
+  })
+
+  it('should overflow trying to transfer multiple tokens (from a single input) with a single payments entry (amount > num token in input)', function (done) {
     transferTx = {
       'vin': [
         {
@@ -1733,7 +1943,7 @@ describe('Transfer of non-fungible tokens', function () {
           'payments': [
             {
               'input': 0,
-              'amount': 2,
+              'amount': 3,
               'output': 0,
               'range': false,
               'percent': false
@@ -1770,6 +1980,351 @@ describe('Transfer of non-fungible tokens', function () {
           divisibility: 0,
           aggregationPolicy: 'nonFungible',
           tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1Tuiw2M'
+        }
+      ]
+    ]);
+
+    done();
+  })
+
+  it('should transfer multiple tokens (from a single input) to more than one output with as little payments entries as possible', function (done) {
+    transferTx = {
+      'vin': [
+        {
+          assets: [
+            {
+              assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+              amount: 1,
+              issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+              lockStatus: true,
+              divisibility: 0,
+              aggregationPolicy: 'nonFungible',
+              tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1K4DLji'
+            },
+            {
+              assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+              amount: 1,
+              issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+              lockStatus: true,
+              divisibility: 0,
+              aggregationPolicy: 'nonFungible',
+              tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1Tuiw2M'
+            },
+            {
+              assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+              amount: 1,
+              issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+              lockStatus: true,
+              divisibility: 0,
+              aggregationPolicy: 'nonFungible',
+              tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1bFs2is'
+            },
+            {
+              assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+              amount: 1,
+              issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+              lockStatus: true,
+              divisibility: 0,
+              aggregationPolicy: 'nonFungible',
+              tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1fYfiE1'
+            },
+            {
+              assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+              amount: 1,
+              issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+              lockStatus: true,
+              divisibility: 0,
+              aggregationPolicy: 'nonFungible',
+              tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1oDykd9'
+            },
+            {
+              assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+              amount: 1,
+              issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+              lockStatus: true,
+              divisibility: 0,
+              aggregationPolicy: 'nonFungible',
+              tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1s2bHJK'
+            }
+          ]
+        }
+      ],
+      'vout': [{}, {}, {}],
+      'ccdata': [
+        {
+          'payments': [
+            {
+              'input': 0,
+              'amount': 3,
+              'output': 1,
+              'range': false,
+              'percent': false
+            },
+            {
+              'input': 0,
+              'amount': 1,
+              'output': 0,
+              'range': false,
+              'percent': false
+            },
+            {
+              'input': 0,
+              'amount': 2,
+              'output': 1,
+              'range': false,
+              'percent': false
+            }
+          ],
+          'protocol': C3_PROTOCOL,
+          'version': 2,
+          'type': 'transfer'
+        }
+      ],
+      txid: '60e27611871954dae4e4e53570712b73fcfcae08b30d50e9e3d02f63aa444bff'
+    };
+
+    const res = get_assets_outputs(transferTx, bitcoin.networks.testnet)
+    console.log(JSON.stringify(res, null, 2))
+    assert.deepEqual(res, [
+      [
+        {
+          assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+          amount: 1,
+          issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+          lockStatus: true,
+          divisibility: 0,
+          aggregationPolicy: 'nonFungible',
+          tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1fYfiE1'
+        }
+      ],
+      [
+        {
+          assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+          amount: 1,
+          issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+          lockStatus: true,
+          divisibility: 0,
+          aggregationPolicy: 'nonFungible',
+          tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1K4DLji'
+        },
+        {
+          assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+          amount: 1,
+          issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+          lockStatus: true,
+          divisibility: 0,
+          aggregationPolicy: 'nonFungible',
+          tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1Tuiw2M'
+        },
+        {
+          assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+          amount: 1,
+          issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+          lockStatus: true,
+          divisibility: 0,
+          aggregationPolicy: 'nonFungible',
+          tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1bFs2is'
+        },
+        {
+          assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+          amount: 1,
+          issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+          lockStatus: true,
+          divisibility: 0,
+          aggregationPolicy: 'nonFungible',
+          tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1oDykd9'
+        },
+        {
+          assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+          amount: 1,
+          issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+          lockStatus: true,
+          divisibility: 0,
+          aggregationPolicy: 'nonFungible',
+          tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1s2bHJK'
+        }
+      ],
+      []
+    ]);
+
+    done();
+  })
+
+  it('should transfer multiple tokens (from a single input) to more than one output with as little payments entries as possible with overflow', function (done) {
+    transferTx = {
+      'vin': [
+        {
+          assets: [
+            {
+              assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+              amount: 1,
+              issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+              lockStatus: true,
+              divisibility: 0,
+              aggregationPolicy: 'nonFungible',
+              tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1K4DLji'
+            },
+            {
+              assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+              amount: 1,
+              issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+              lockStatus: true,
+              divisibility: 0,
+              aggregationPolicy: 'nonFungible',
+              tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1Tuiw2M'
+            },
+            {
+              assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+              amount: 1,
+              issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+              lockStatus: true,
+              divisibility: 0,
+              aggregationPolicy: 'nonFungible',
+              tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1bFs2is'
+            },
+            {
+              assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+              amount: 1,
+              issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+              lockStatus: true,
+              divisibility: 0,
+              aggregationPolicy: 'nonFungible',
+              tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1fYfiE1'
+            },
+            {
+              assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+              amount: 1,
+              issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+              lockStatus: true,
+              divisibility: 0,
+              aggregationPolicy: 'nonFungible',
+              tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1oDykd9'
+            },
+            {
+              assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+              amount: 1,
+              issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+              lockStatus: true,
+              divisibility: 0,
+              aggregationPolicy: 'nonFungible',
+              tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1s2bHJK'
+            },
+            {
+              assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+              amount: 1,
+              issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+              lockStatus: true,
+              divisibility: 0,
+              aggregationPolicy: 'nonFungible',
+              tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC219WTgV'
+            }
+          ]
+        }
+      ],
+      'vout': [{}, {}, {}],
+      'ccdata': [
+        {
+          'payments': [
+            {
+              'input': 0,
+              'amount': 3,
+              'output': 1,
+              'range': false,
+              'percent': false
+            },
+            {
+              'input': 0,
+              'amount': 1,
+              'output': 0,
+              'range': false,
+              'percent': false
+            },
+            {
+              'input': 0,
+              'amount': 2,
+              'output': 1,
+              'range': false,
+              'percent': false
+            }
+          ],
+          'protocol': C3_PROTOCOL,
+          'version': 2,
+          'type': 'transfer'
+        }
+      ],
+      txid: '60e27611871954dae4e4e53570712b73fcfcae08b30d50e9e3d02f63aa444bff'
+    };
+
+    const res = get_assets_outputs(transferTx, bitcoin.networks.testnet)
+    console.log(JSON.stringify(res, null, 2))
+    assert.deepEqual(res, [
+      [
+        {
+          assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+          amount: 1,
+          issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+          lockStatus: true,
+          divisibility: 0,
+          aggregationPolicy: 'nonFungible',
+          tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1fYfiE1'
+        }
+      ],
+      [
+        {
+          assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+          amount: 1,
+          issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+          lockStatus: true,
+          divisibility: 0,
+          aggregationPolicy: 'nonFungible',
+          tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1K4DLji'
+        },
+        {
+          assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+          amount: 1,
+          issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+          lockStatus: true,
+          divisibility: 0,
+          aggregationPolicy: 'nonFungible',
+          tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1Tuiw2M'
+        },
+        {
+          assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+          amount: 1,
+          issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+          lockStatus: true,
+          divisibility: 0,
+          aggregationPolicy: 'nonFungible',
+          tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1bFs2is'
+        },
+        {
+          assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+          amount: 1,
+          issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+          lockStatus: true,
+          divisibility: 0,
+          aggregationPolicy: 'nonFungible',
+          tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1oDykd9'
+        },
+        {
+          assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+          amount: 1,
+          issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+          lockStatus: true,
+          divisibility: 0,
+          aggregationPolicy: 'nonFungible',
+          tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC1s2bHJK'
+        }
+      ],
+      [
+        {
+          assetId: 'LnAR9VJaHTtHQPeMaPTVWvKo6nLmBGoZH5z92v',
+          amount: 1,
+          issueTxid: '841f14f80b3f9f0b0d9f353c7ec2d517121ed948542bd0a0f1c080c29141eaff',
+          lockStatus: true,
+          divisibility: 0,
+          aggregationPolicy: 'nonFungible',
+          tokenId: 'Tk97fk8Rg27toQW68faxhnDuYeFEoLC219WTgV'
         }
       ]
     ]);

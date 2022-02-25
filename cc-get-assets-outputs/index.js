@@ -89,12 +89,30 @@ function transfer (assets, payments, transaction_data) {
       assets[payment.output] = assets[payment.output] || []
       debug('assets[' + payment.output + '] = ', assets[payment.output])
       if (lastPaymentIndex === i) {
-        if (!assets[payment.output].length || assets[payment.output][assets[payment.output].length - 1].assetId !== currentAsset.assetId || currentAsset.aggregationPolicy !== 'aggregatable') {
+        // Processing the same payment (as last iteration's)
+        if (!assets[payment.output].length || assets[payment.output][assets[payment.output].length - 1].assetId !== currentAsset.assetId
+              || (currentAsset.aggregationPolicy !== 'aggregatable' && currentAsset.aggregationPolicy !== 'nonFungible')) {
           debug('tried to pay same payment with a separate asset, overflow')
           return false
         }
-        debug('aggregating ' + currentAmount + ' of asset ' + currentAsset.assetId + ' from input #' + currentInputIndex + ' asset #' + currentAssetIndex + ' to output #' + payment.output)
-        assets[payment.output][assets[payment.output].length - 1].amount += currentAmount
+
+        if (currentAsset.aggregationPolicy === 'nonFungible') {
+          // Payment transferring more than one non-fungible token of the same (non-fungible) asset.
+          //  Add one more entry to the current output's assets list for the new non-fungible token
+          assets[payment.output].push({
+            assetId: currentAsset.assetId,
+            amount: currentAmount,
+            issueTxid: currentAsset.issueTxid,
+            divisibility: currentAsset.divisibility,
+            lockStatus: currentAsset.lockStatus,
+            aggregationPolicy: currentAsset.aggregationPolicy,
+            tokenId: currentAsset.tokenId
+          });
+        }
+        else {
+          debug('aggregating ' + currentAmount + ' of asset ' + currentAsset.assetId + ' from input #' + currentInputIndex + ' asset #' + currentAssetIndex + ' to output #' + payment.output)
+          assets[payment.output][assets[payment.output].length - 1].amount += currentAmount
+        }
       } else {
         const assetInfo = {
           assetId: currentAsset.assetId,
