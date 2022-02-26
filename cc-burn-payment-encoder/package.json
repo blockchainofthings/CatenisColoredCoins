@@ -16,7 +16,6 @@
   "author": "oleiba",
   "license": "Apache-2.0",
   "dependencies": {
-    "cc-payment-encoder": "^1.0.1",
     "clone": "^2.1.2"
   },
   "repository": {
