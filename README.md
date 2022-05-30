@@ -14,4 +14,4 @@ information about it.
 
 This project is for Blockchain of Things' internal use only.
 
-Copyright © 2020, Blockchain of Things Inc.
+Copyright © 2018-2022, Blockchain of Things Inc.
