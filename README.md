@@ -1,7 +1,7 @@
 # Catenis Colored Coins
 
 This is the implementation of the Catenis Colored Coins protocol, which is based on the (original) Colored Coins
-protocol from [coloredcoins.org](http://coloredcoins.org).
+protocol from [ColoredCoins.org](https://github.com/Colored-Coins).
 
 # Notice of reuse
 
